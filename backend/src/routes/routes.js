@@ -6,7 +6,6 @@ export async function userRoutes(fastify, options) {
         const { name, password, confirmPassword, email, position, telephoneNumber, CPF, dateBirth } = req.body;
 
         try {
-            //Verifica se ambas as senhas estão identicas
             if (password !== confirmPassword) {
                 return res.status(400).send({ error: 'As senhas não coincidem.' });
             }

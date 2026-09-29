@@ -1,26 +1,1077 @@
-@import "tailwindcss";
 
-:root {
-  --background: #ffffff;
-  --foreground: #171717;
+/* =========================================================
+   CONTAINER PRINCIPAL
+========================================================= */
+
+.container {
+  width: 100%;
+  min-height: 100vh;
+
+  display: flex;
+
+  background: #f0f4fa;
+  color: #1f3657;
+
+  font-family: Arial, Helvetica, sans-serif;
+
+  box-sizing: border-box;
+
+  overflow-x: hidden;
 }
 
-@theme inline {
-  --color-background: var(--background);
-  --color-foreground: var(--foreground);
-  --font-sans: var(--font-geist-sans);
-  --font-mono: var(--font-geist-mono);
+
+/* =========================================================
+   SIDEBAR
+========================================================= */
+
+.sidebar {
+  width: 180px;
+  min-height: 100vh;
+
+  background: #ffffff;
+  border-right: 1px solid #dce5ed;
+
+  display: flex;
+  flex-direction: column;
+
+  padding: 30px 16px 24px;
+
+  box-sizing: border-box;
+
+  flex-shrink: 0;
 }
 
-@media (prefers-color-scheme: dark) {
-  :root {
-    --background: #0a0a0a;
-    --foreground: #ededed;
+
+/* =========================================================
+   LOGO
+========================================================= */
+
+.logo {
+  display: flex;
+  align-items: center;
+
+  gap: 9px;
+
+  padding: 0 12px;
+  margin-bottom: 50px;
+
+  font-size: 15px;
+  font-weight: 700;
+
+  color: #1e6ebe;
+}
+
+.logo span span {
+  color: #3ca7d8;
+}
+
+.logoIcon {
+  font-size: 14px;
+  color: #3ca7d8;
+}
+
+
+/* =========================================================
+   MENU
+========================================================= */
+
+.navigation {
+  display: flex;
+  flex-direction: column;
+
+  gap: 8px;
+}
+
+.navItem {
+  width: 100%;
+  height: 44px;
+
+  border: none;
+  background: transparent;
+
+  border-radius: 8px;
+
+  display: flex;
+  align-items: center;
+
+  gap: 11px;
+
+  padding: 0 13px;
+
+  color: #29415f;
+
+  font-size: 12px;
+  font-weight: 600;
+
+  cursor: pointer;
+
+  transition: 0.2s;
+
+  box-sizing: border-box;
+}
+
+.navItem:hover {
+  background: #f0f5f9;
+}
+
+.navItem.active {
+  background: #e7f3fa;
+  color: #168bc4;
+}
+
+
+/* =========================================================
+   SAIR
+========================================================= */
+
+.logout {
+  width: 100%;
+  height: 40px;
+
+  margin-top: auto;
+
+  border: none;
+  background: transparent;
+
+  display: flex;
+  align-items: center;
+
+  gap: 11px;
+
+  padding: 0 13px;
+
+  color: #344a66;
+
+  font-size: 12px;
+
+  cursor: pointer;
+
+  box-sizing: border-box;
+}
+
+
+/* =========================================================
+   ÁREA PRINCIPAL
+========================================================= */
+
+.main {
+  flex: 1;
+
+  width: calc(100% - 180px);
+
+  min-width: 0;
+  min-height: 100vh;
+
+  padding: 42px 48px 35px;
+
+  box-sizing: border-box;
+
+  overflow-x: hidden;
+}
+
+
+/* =========================================================
+   CABEÇALHO
+========================================================= */
+
+.header {
+  width: 100%;
+
+  display: flex;
+
+  justify-content: space-between;
+  align-items: flex-start;
+
+  margin-bottom: 35px;
+
+  box-sizing: border-box;
+}
+
+.header h1 {
+  margin: 0 0 8px;
+
+  color: #1d3556;
+
+  font-size: 28px;
+  line-height: 1;
+
+  font-weight: 700;
+}
+
+.doadora {
+  display: inline-flex;
+
+  background: #e5f4fa;
+
+  color: #1685ba;
+
+  border-radius: 5px;
+
+  padding: 5px 9px;
+
+  font-size: 10px;
+  font-weight: 700;
+}
+
+
+/* =========================================================
+   BOTÃO DE AJUDA
+========================================================= */
+
+.helpButton {
+  min-height: 38px;
+
+  border: 1px solid #cbddea;
+
+  border-radius: 8px;
+
+  background: #ffffff;
+
+  color: #647c96;
+
+  display: flex;
+  align-items: center;
+
+  gap: 8px;
+
+  padding: 0 14px;
+
+  font-size: 10px;
+
+  cursor: pointer;
+
+  box-sizing: border-box;
+}
+
+
+/* =========================================================
+   ETAPAS
+========================================================= */
+
+.steps {
+  width: 100%;
+
+  display: flex;
+
+  align-items: flex-start;
+  justify-content: center;
+
+  margin-bottom: 34px;
+
+  box-sizing: border-box;
+}
+
+.step {
+  width: 105px;
+
+  display: flex;
+  flex-direction: column;
+
+  align-items: center;
+
+  gap: 8px;
+
+  color: #71859d;
+
+  font-size: 10px;
+
+  text-align: center;
+
+  white-space: nowrap;
+
+  flex-shrink: 0;
+}
+
+
+/* =========================================================
+   CÍRCULO DA ETAPA
+========================================================= */
+
+.stepCircle {
+  width: 28px;
+  height: 28px;
+
+  border-radius: 50%;
+
+  border: 1px solid #c9dce9;
+
+  background: #f6f9fb;
+
+  color: #7690a7;
+
+  display: flex;
+  align-items: center;
+  justify-content: center;
+
+  font-size: 11px;
+
+  box-sizing: border-box;
+}
+
+
+/* =========================================================
+   ETAPA CONCLUÍDA
+========================================================= */
+
+.stepCircle.completed {
+  border-color: #28b9a9;
+
+  background: #ffffff;
+
+  color: #20aa9a;
+}
+
+
+/* =========================================================
+   ETAPA ATUAL
+========================================================= */
+
+.stepCircle.current {
+  border-color: #358bb4;
+
+  background: #358bb4;
+
+  color: #ffffff;
+}
+
+
+/* =========================================================
+   LINHA ENTRE ETAPAS
+========================================================= */
+
+.stepLine {
+  width: 45px;
+  height: 2px;
+
+  margin-top: 13px;
+
+  background: #d9e6ef;
+
+  flex-shrink: 0;
+}
+
+
+/* =========================================================
+   CARD PRINCIPAL
+========================================================= */
+
+.card {
+  width: 100%;
+  max-width: 900px;
+
+  margin: 0 auto;
+
+  background: #ffffff;
+
+  border: 1px solid #cbdde9;
+
+  border-radius: 12px;
+
+  padding: 28px 28px 0;
+
+  box-sizing: border-box;
+
+  overflow: hidden;
+}
+
+
+/* =========================================================
+   CABEÇALHO DO CARD
+========================================================= */
+
+.cardHeader {
+  width: 100%;
+
+  box-sizing: border-box;
+}
+
+.cardHeader h2 {
+  margin: 0 0 7px;
+
+  color: #1f3859;
+
+  font-size: 19px;
+
+  font-weight: 700;
+}
+
+.cardHeader p {
+  margin: 0;
+
+  color: #71869c;
+
+  font-size: 11px;
+}
+
+
+/* =========================================================
+   LINHA
+========================================================= */
+
+.divider {
+  width: 100%;
+
+  height: 1px;
+
+  background: #dce7ee;
+
+  margin: 20px 0 0;
+}
+
+
+/* =========================================================
+   PERGUNTAS
+========================================================= */
+
+.question {
+  width: 100%;
+
+  padding: 24px 0;
+
+  border-bottom: 1px solid #e5edf2;
+
+  box-sizing: border-box;
+}
+
+.question:last-child {
+  border-bottom: none;
+
+  padding-bottom: 26px;
+}
+
+
+/* =========================================================
+   TEXTO DA PERGUNTA
+========================================================= */
+
+.question h3 {
+  margin: 0 0 13px;
+
+  font-size: 14px;
+
+  color: #223d60;
+
+  font-weight: 700;
+
+  line-height: 1.4;
+}
+
+.question h3 span {
+  color: #1679b4;
+}
+
+
+/* =========================================================
+   BOTÕES SIM / NÃO
+========================================================= */
+
+.options {
+  width: 100%;
+
+  display: flex;
+
+  align-items: center;
+  justify-content: flex-start;
+
+  gap: 10px;
+}
+
+.radioButton {
+  height: 36px;
+
+  min-width: 76px;
+
+  border: 1px solid #cbdde8;
+
+  border-radius: 7px;
+
+  background: #ffffff;
+
+  color: #314b67;
+
+  display: flex;
+  align-items: center;
+  justify-content: center;
+
+  gap: 8px;
+
+  padding: 0 13px;
+
+  font-size: 12px;
+
+  cursor: pointer;
+
+  transition: 0.2s;
+
+  box-sizing: border-box;
+}
+
+.radioButton:hover {
+  border-color: #3996c4;
+}
+
+
+/* =========================================================
+   BOTÃO SELECIONADO
+========================================================= */
+
+.radioButton.radioSelected {
+  border-color: #208bc0;
+
+  color: #1b618e;
+
+  background: #f5fbfe;
+}
+
+
+/* =========================================================
+   CÍRCULO
+========================================================= */
+
+.radioCircle {
+  width: 15px;
+  height: 15px;
+
+  border: 1px solid #7790a6;
+
+  border-radius: 50%;
+
+  display: flex;
+  align-items: center;
+  justify-content: center;
+
+  box-sizing: border-box;
+}
+
+.radioSelected .radioCircle {
+  border-color: #208bc0;
+}
+
+
+/* =========================================================
+   BOLINHA INTERNA
+========================================================= */
+
+.radioCircle span {
+  width: 7px;
+  height: 7px;
+
+  border-radius: 50%;
+
+  background: #208bc0;
+}
+
+
+/* =========================================================
+   PERGUNTA + CAMPO EXTRA
+========================================================= */
+
+.questionWithExtra {
+  width: 100%;
+
+  display: flex;
+
+  align-items: flex-start;
+  justify-content: flex-start;
+
+  gap: 12px;
+
+  box-sizing: border-box;
+}
+
+
+/* =========================================================
+   CAIXA EXTRA
+========================================================= */
+
+.extraBox {
+  background: #edf5f9;
+
+  border-radius: 8px;
+
+  padding: 11px 12px;
+
+  min-width: 390px;
+
+  box-sizing: border-box;
+
+  margin-left: 0;
+
+  flex: 0 1 390px;
+}
+
+
+/* =========================================================
+   LABEL
+========================================================= */
+
+.extraBox label {
+  display: block;
+
+  color: #294564;
+
+  font-size: 10px;
+
+  font-weight: 700;
+
+  margin-bottom: 8px;
+}
+
+
+/* =========================================================
+   SELECTS
+========================================================= */
+
+.selectRow {
+  width: 100%;
+
+  display: flex;
+
+  gap: 8px;
+}
+
+.selectWrapper {
+  height: 34px;
+
+  flex: 1;
+
+  position: relative;
+
+  min-width: 0;
+}
+
+.selectWrapper select {
+  width: 100%;
+  height: 100%;
+
+  appearance: none;
+
+  border: 1px solid #3193c4;
+
+  border-radius: 7px;
+
+  background: #ffffff;
+
+  padding: 0 32px 0 10px;
+
+  color: #344d68;
+
+  font-size: 11px;
+
+  outline: none;
+
+  cursor: pointer;
+
+  box-sizing: border-box;
+}
+
+.selectWrapper svg {
+  position: absolute;
+
+  right: 9px;
+  top: 50%;
+
+  transform: translateY(-50%);
+
+  color: #4d718d;
+
+  pointer-events: none;
+}
+
+
+/* =========================================================
+   INPUT MEDICAMENTO
+========================================================= */
+
+.extraBox input {
+  width: 100%;
+
+  height: 34px;
+
+  border: 1px solid #3193c4;
+
+  border-radius: 7px;
+
+  padding: 0 10px;
+
+  box-sizing: border-box;
+
+  font-size: 11px;
+
+  color: #334b66;
+
+  background: #ffffff;
+
+  outline: none;
+}
+
+.extraBox input:focus {
+  border-color: #168bc4;
+
+  box-shadow: 0 0 0 2px rgba(49, 147, 196, 0.12);
+}
+
+
+/* =========================================================
+   RODAPÉ
+========================================================= */
+
+.footer {
+  width: 100%;
+  max-width: 900px;
+
+  margin: 30px auto 0;
+
+  display: flex;
+
+  justify-content: space-between;
+  align-items: center;
+
+  box-sizing: border-box;
+}
+
+
+/* =========================================================
+   TEXTO
+========================================================= */
+
+.requiredText {
+  color: #72869c;
+
+  font-size: 10px;
+}
+
+
+/* =========================================================
+   BOTÕES DO RODAPÉ
+========================================================= */
+
+.footerButtons {
+  display: flex;
+
+  gap: 10px;
+}
+
+.backButton,
+.nextButton {
+  height: 40px;
+
+  border-radius: 7px;
+
+  padding: 0 19px;
+
+  font-size: 11px;
+
+  font-weight: 700;
+
+  cursor: pointer;
+
+  transition: 0.2s;
+
+  box-sizing: border-box;
+}
+
+
+/* =========================================================
+   VOLTAR
+========================================================= */
+
+.backButton {
+  background: #ffffff;
+
+  border: 1px solid #3293c3;
+
+  color: #1680b8;
+}
+
+.backButton:hover {
+  background: #f2f9fc;
+}
+
+
+/* =========================================================
+   PRÓXIMA ETAPA
+========================================================= */
+
+.nextButton {
+  background: #2788b8;
+
+  border: 1px solid #2788b8;
+
+  color: #ffffff;
+
+  display: flex;
+  align-items: center;
+
+  gap: 8px;
+}
+
+.nextButton:hover {
+  background: #217ba8;
+}
+
+
+/* =========================================================
+   RESPONSIVIDADE
+========================================================= */
+
+@media (max-width: 1100px) {
+
+  .sidebar {
+    width: 165px;
+  }
+
+  .main {
+    width: calc(100% - 165px);
+
+    padding: 35px 30px;
+  }
+
+  .step {
+    width: 90px;
+  }
+
+  .stepLine {
+    width: 30px;
+  }
+
+  .card,
+  .footer {
+    max-width: 850px;
   }
 }
 
-body {
-  background: var(--background);
-  color: var(--foreground);
-  font-family: Arial, Helvetica, sans-serif;
+
+/* =========================================================
+   TABLET
+========================================================= */
+
+@media (max-width: 850px) {
+
+  .sidebar {
+    width: 140px;
+
+    padding: 25px 12px;
+  }
+
+  .main {
+    width: calc(100% - 140px);
+
+    padding: 30px 20px;
+  }
+
+  .header h1 {
+    font-size: 24px;
+  }
+
+  .steps {
+    justify-content: flex-start;
+
+    overflow-x: auto;
+
+    padding-bottom: 8px;
+  }
+
+  .step {
+    width: 85px;
+
+    font-size: 9px;
+  }
+
+  .stepLine {
+    width: 25px;
+  }
+
+  .questionWithExtra {
+    flex-direction: column;
+
+    align-items: flex-start;
+  }
+
+  .extraBox {
+    width: 100%;
+
+    min-width: 0;
+    max-width: 100%;
+
+    margin-left: 0;
+
+    flex: none;
+  }
+
+  .card,
+  .footer {
+    max-width: 100%;
+  }
+}
+
+
+/* =========================================================
+   CELULAR
+========================================================= */
+
+@media (max-width: 650px) {
+
+  .sidebar {
+    width: 70px;
+
+    padding: 20px 8px;
+  }
+
+  .main {
+    width: calc(100% - 70px);
+
+    padding: 24px 15px;
+  }
+
+  .logo {
+    justify-content: center;
+
+    padding: 0;
+  }
+
+  .logo > span {
+    display: none;
+  }
+
+  .navItem {
+    justify-content: center;
+
+    padding: 0;
+  }
+
+  .navItem span {
+    display: none;
+  }
+
+  .logout {
+    justify-content: center;
+
+    padding: 0;
+  }
+
+  .logout span {
+    display: none;
+  }
+
+  .header {
+    flex-direction: column;
+
+    gap: 16px;
+  }
+
+  .header h1 {
+    font-size: 23px;
+  }
+
+  .helpButton {
+    width: 100%;
+
+    justify-content: center;
+  }
+
+  .card {
+    padding: 22px 18px 0;
+  }
+
+  .cardHeader h2 {
+    font-size: 17px;
+  }
+
+  .cardHeader p {
+    font-size: 10px;
+
+    line-height: 1.5;
+  }
+
+  .question h3 {
+    font-size: 13px;
+
+    line-height: 1.4;
+  }
+
+  .radioButton {
+    height: 38px;
+
+    min-width: 72px;
+  }
+
+  .footer {
+    flex-direction: column;
+
+    align-items: stretch;
+
+    gap: 16px;
+  }
+
+  .footerButtons {
+    justify-content: flex-end;
+  }
+}
+
+
+/* =========================================================
+   CELULAR PEQUENO
+========================================================= */
+
+@media (max-width: 450px) {
+
+  .sidebar {
+    width: 58px;
+  }
+
+  .main {
+    width: calc(100% - 58px);
+
+    padding: 20px 10px;
+  }
+
+  .card {
+    padding: 18px 13px 0;
+  }
+
+  .header h1 {
+    font-size: 21px;
+  }
+
+  .question {
+    padding: 20px 0;
+  }
+
+  .question h3 {
+    font-size: 12px;
+  }
+
+  .options {
+    gap: 7px;
+  }
+
+  .radioButton {
+    min-width: 68px;
+
+    padding: 0 10px;
+
+    font-size: 11px;
+  }
+
+  .selectRow {
+    flex-direction: column;
+  }
+
+  .extraBox {
+    width: 100%;
+
+    padding: 10px;
+  }
+
+  .footerButtons {
+    width: 100%;
+  }
+
+  .backButton,
+  .nextButton {
+    flex: 1;
+
+    justify-content: center;
+  }
 }

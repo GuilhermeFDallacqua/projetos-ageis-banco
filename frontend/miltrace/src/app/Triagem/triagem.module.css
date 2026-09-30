@@ -1,3 +1,4 @@
+
 .container {
   min-height: 100vh;
   display: flex;
@@ -5,10 +6,6 @@
   color: #1f3657;
   font-family: Arial, Helvetica, sans-serif;
 }
-
-/* =========================
-   SIDEBAR
-========================= */
 
 .sidebar {
   width: 130px;
@@ -85,13 +82,9 @@
   cursor: pointer;
 }
 
-/* =========================
-   MAIN
-========================= */
-
 .main {
   flex: 1;
-  padding: 28px 27px 24px;
+  padding: 32px 35px 30px;
   min-width: 0;
 }
 
@@ -99,13 +92,13 @@
   display: flex;
   justify-content: space-between;
   align-items: flex-start;
-  margin-bottom: 27px;
+  margin-bottom: 30px;
 }
 
 .header h1 {
-  margin: 0 0 6px;
+  margin: 0 0 8px;
   color: #1d3556;
-  font-size: 18px;
+  font-size: 24px;
   line-height: 1;
   font-weight: 700;
 }
@@ -114,52 +107,48 @@
   display: inline-flex;
   background: #e5f4fa;
   color: #1685ba;
-  border-radius: 5px;
-  padding: 3px 7px;
-  font-size: 7px;
+  border-radius: 6px;
+  padding: 5px 9px;
+  font-size: 11px;
   font-weight: 700;
 }
 
 .helpButton {
-  height: 28px;
+  height: 34px;
   border: 1px solid #cbddea;
   border-radius: 7px;
   background: white;
   color: #647c96;
   display: flex;
   align-items: center;
-  gap: 6px;
-  padding: 0 10px;
-  font-size: 7px;
+  gap: 7px;
+  padding: 0 13px;
+  font-size: 10px;
 }
-
-/* =========================
-   STEPS
-========================= */
 
 .steps {
   display: flex;
   align-items: flex-start;
   justify-content: center;
-  margin-bottom: 25px;
+  margin-bottom: 30px;
   width: 100%;
 }
 
 .step {
-  width: 82px;
+  width: 115px;
   display: flex;
   flex-direction: column;
   align-items: center;
-  gap: 6px;
+  gap: 8px;
   color: #71859d;
-  font-size: 7px;
+  font-size: 10px;
   text-align: center;
   white-space: nowrap;
 }
 
 .stepCircle {
-  width: 20px;
-  height: 20px;
+  width: 27px;
+  height: 27px;
   border-radius: 50%;
   border: 1px solid #c9dce9;
   background: #f6f9fb;
@@ -167,7 +156,7 @@
   display: flex;
   align-items: center;
   justify-content: center;
-  font-size: 8px;
+  font-size: 11px;
 }
 
 .stepCircle.completed {
@@ -183,9 +172,9 @@
 }
 
 .stepLine {
-  width: 28px;
+  width: 42px;
   height: 2px;
-  margin-top: 9px;
+  margin-top: 12px;
   background: #d9e6ef;
 }
 
@@ -193,57 +182,49 @@
   background: #55b9b3;
 }
 
-/* =========================
-   CARD
-========================= */
-
 .card {
   width: 100%;
-  max-width: 602px;
+  max-width: 1000px;
   margin: 0 auto;
   background: #ffffff;
   border: 1px solid #cbdde9;
-  border-radius: 10px;
-  padding: 19px 19px 0;
+  border-radius: 12px;
+  padding: 30px 32px 0;
   box-sizing: border-box;
 }
 
 .cardHeader h2 {
-  margin: 0 0 5px;
+  margin: 0 0 8px;
   color: #1f3859;
-  font-size: 12px;
+  font-size: 18px;
   font-weight: 700;
 }
 
 .cardHeader p {
   margin: 0;
   color: #71869c;
-  font-size: 7px;
+  font-size: 11px;
 }
 
 .divider {
   height: 1px;
   background: #dce7ee;
-  margin: 16px 0 0;
+  margin: 22px 0 0;
 }
 
-/* =========================
-   QUESTIONS
-========================= */
-
 .question {
-  padding: 17px 0;
+  padding: 24px 0;
   border-bottom: 1px solid #e5edf2;
 }
 
 .question:last-child {
   border-bottom: none;
-  padding-bottom: 18px;
+  padding-bottom: 26px;
 }
 
 .question h3 {
-  margin: 0 0 9px;
-  font-size: 9px;
+  margin: 0 0 13px;
+  font-size: 14px;
   color: #223d60;
   font-weight: 700;
 }
@@ -255,22 +236,22 @@
 .options {
   display: flex;
   align-items: center;
-  gap: 8px;
+  gap: 10px;
 }
 
 .radioButton {
-  height: 23px;
-  min-width: 51px;
+  height: 36px;
+  min-width: 78px;
   border: 1px solid #cbdde8;
-  border-radius: 6px;
+  border-radius: 7px;
   background: white;
   color: #314b67;
   display: flex;
   align-items: center;
   justify-content: center;
-  gap: 6px;
-  padding: 0 9px;
-  font-size: 8px;
+  gap: 8px;
+  padding: 0 13px;
+  font-size: 12px;
   cursor: pointer;
 }
 
@@ -285,8 +266,8 @@
 }
 
 .radioCircle {
-  width: 10px;
-  height: 10px;
+  width: 14px;
+  height: 14px;
   border: 1px solid #7790a6;
   border-radius: 50%;
   display: flex;
@@ -300,45 +281,43 @@
 }
 
 .radioCircle span {
-  width: 5px;
-  height: 5px;
+  width: 7px;
+  height: 7px;
   border-radius: 50%;
   background: #208bc0;
 }
 
-/* =========================
-   CAMPOS EXTRAS
-========================= */
-
 .questionWithExtra {
   display: flex;
+  flex-direction: column;
   align-items: flex-start;
-  gap: 7px;
+  gap: 12px;
 }
 
 .extraBox {
   background: #edf5f9;
-  border-radius: 7px;
-  padding: 7px 9px 8px;
-  min-width: 273px;
+  border-radius: 8px;
+  padding: 12px 14px 13px;
+  width: 360px;
+  min-width: 0;
   box-sizing: border-box;
 }
 
 .extraBox label {
   display: block;
   color: #294564;
-  font-size: 7px;
+  font-size: 11px;
   font-weight: 700;
-  margin-bottom: 6px;
+  margin-bottom: 8px;
 }
 
 .selectRow {
   display: flex;
-  gap: 6px;
+  gap: 8px;
 }
 
 .selectWrapper {
-  height: 23px;
+  height: 36px;
   flex: 1;
   position: relative;
 }
@@ -348,17 +327,17 @@
   height: 100%;
   appearance: none;
   border: 1px solid #3193c4;
-  border-radius: 6px;
+  border-radius: 7px;
   background: white;
-  padding: 0 26px 0 8px;
+  padding: 0 32px 0 11px;
   color: #344d68;
-  font-size: 7px;
+  font-size: 11px;
   outline: none;
 }
 
 .selectWrapper svg {
   position: absolute;
-  right: 7px;
+  right: 9px;
   top: 50%;
   transform: translateY(-50%);
   color: #4d718d;
@@ -367,12 +346,12 @@
 
 .extraBox input {
   width: 100%;
-  height: 24px;
+  height: 36px;
   border: 1px solid #3193c4;
-  border-radius: 6px;
-  padding: 0 8px;
+  border-radius: 7px;
+  padding: 0 11px;
   box-sizing: border-box;
-  font-size: 8px;
+  font-size: 11px;
   color: #334b66;
   background: white;
   outline: none;
@@ -382,13 +361,10 @@
   box-shadow: 0 0 0 2px rgba(49, 147, 196, 0.1);
 }
 
-/* =========================
-   FOOTER
-========================= */
-
 .footer {
-  max-width: 602px;
-  margin: 25px auto 0;
+  width: 100%;
+  max-width: 1000px;
+  margin: 30px auto 0;
   display: flex;
   justify-content: space-between;
   align-items: center;
@@ -396,20 +372,20 @@
 
 .requiredText {
   color: #72869c;
-  font-size: 7px;
+  font-size: 10px;
 }
 
 .footerButtons {
   display: flex;
-  gap: 8px;
+  gap: 10px;
 }
 
 .backButton,
 .nextButton {
-  height: 29px;
-  border-radius: 6px;
-  padding: 0 15px;
-  font-size: 8px;
+  height: 38px;
+  border-radius: 7px;
+  padding: 0 20px;
+  font-size: 11px;
   font-weight: 700;
   cursor: pointer;
 }
@@ -426,7 +402,7 @@
   color: white;
   display: flex;
   align-items: center;
-  gap: 7px;
+  gap: 8px;
 }
 
 .backButton:hover {
@@ -437,9 +413,24 @@
   background: #217ba8;
 }
 
-/* =========================
-   RESPONSIVIDADE
-========================= */
+@media (max-width: 1100px) {
+  .main {
+    padding: 28px 24px;
+  }
+
+  .card,
+  .footer {
+    max-width: 100%;
+  }
+
+  .step {
+    width: 95px;
+  }
+
+  .stepLine {
+    width: 30px;
+  }
+}
 
 @media (max-width: 850px) {
   .sidebar {
@@ -451,8 +442,8 @@
   }
 
   .step {
-    width: 65px;
-    font-size: 6px;
+    width: 75px;
+    font-size: 9px;
   }
 
   .stepLine {
@@ -500,10 +491,14 @@
     gap: 15px;
   }
 
+  .header h1 {
+    font-size: 21px;
+  }
+
   .steps {
     overflow-x: auto;
     justify-content: flex-start;
-    padding-bottom: 5px;
+    padding-bottom: 8px;
   }
 
   .questionWithExtra {
@@ -532,7 +527,15 @@
   }
 
   .card {
-    padding: 15px 13px 0;
+    padding: 20px 16px 0;
+  }
+
+  .cardHeader h2 {
+    font-size: 16px;
+  }
+
+  .cardHeader p {
+    font-size: 10px;
   }
 
   .helpButton {
@@ -545,6 +548,10 @@
   }
 
   .radioButton {
-    min-width: 48px;
+    min-width: 70px;
+  }
+
+  .question h3 {
+    font-size: 13px;
   }
 }

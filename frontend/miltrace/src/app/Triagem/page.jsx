@@ -29,9 +29,7 @@ export default function TriagemPage() {
 
   return (
     <div className={styles.container}>
-      {/* =====================================================
-          SIDEBAR
-      ===================================================== */}
+
 
       <aside className={styles.sidebar}>
         <div className={styles.logo}>
@@ -67,39 +65,24 @@ export default function TriagemPage() {
         </button>
       </aside>
 
-      {/* =====================================================
-          CONTEÚDO PRINCIPAL
-      ===================================================== */}
+
 
       <main className={styles.main}>
-        {/* ===================================================
-            CABEÇALHO
-        =================================================== */}
 
         <header className={styles.header}>
           <div>
             <h1>Nova Triagem</h1>
 
             <span className={styles.doadora}>
-              Doadora #D-00124
+              Maria Freitas Queiroz
             </span>
           </div>
 
-          <button className={styles.helpButton}>
-            <CircleHelp size={13} />
 
-            <span>
-              Caso tenha dúvidas, consulte o Manual de Triagem.
-            </span>
-          </button>
         </header>
 
-        {/* ===================================================
-            ETAPAS
-        =================================================== */}
-
         <div className={styles.steps}>
-          {/* ETAPA 1 */}
+      
 
           <div className={styles.step}>
             <div
@@ -113,7 +96,7 @@ export default function TriagemPage() {
 
           <div className={styles.stepLine}></div>
 
-          {/* ETAPA 2 */}
+  
 
           <div className={styles.step}>
             <div
@@ -127,7 +110,6 @@ export default function TriagemPage() {
 
           <div className={styles.stepLine}></div>
 
-          {/* ETAPA 3 */}
 
           <div className={styles.step}>
             <div className={styles.stepCircle}>
@@ -139,7 +121,7 @@ export default function TriagemPage() {
 
           <div className={styles.stepLine}></div>
 
-          {/* ETAPA 4 */}
+       
 
           <div className={styles.step}>
             <div className={styles.stepCircle}>
@@ -151,7 +133,6 @@ export default function TriagemPage() {
 
           <div className={styles.stepLine}></div>
 
-          {/* ETAPA 5 */}
 
           <div className={styles.step}>
             <div className={styles.stepCircle}>
@@ -163,7 +144,7 @@ export default function TriagemPage() {
 
           <div className={styles.stepLine}></div>
 
-          {/* ETAPA 6 */}
+         
 
           <div className={styles.step}>
             <div className={styles.stepCircle}>
@@ -174,9 +155,7 @@ export default function TriagemPage() {
           </div>
         </div>
 
-        {/* ===================================================
-            CARD PRINCIPAL
-        =================================================== */}
+
 
         <section className={styles.card}>
           <div className={styles.cardHeader}>
@@ -190,9 +169,6 @@ export default function TriagemPage() {
 
           <div className={styles.divider}></div>
 
-          {/* =================================================
-              PERGUNTA 1
-          ================================================= */}
 
           <Question
             number="1."
@@ -213,16 +189,13 @@ export default function TriagemPage() {
             </div>
           </Question>
 
-          {/* =================================================
-              PERGUNTA 2
-          ================================================= */}
 
           <Question
             number="2."
             text="Possui tatuagem?"
           >
             <div className={styles.questionWithExtra}>
-              {/* BOTÕES */}
+
 
               <div className={styles.options}>
                 <RadioButton
@@ -238,7 +211,7 @@ export default function TriagemPage() {
                 />
               </div>
 
-              {/* CAMPO EXTRA */}
+
 
               {tatuagem === "sim" && (
                 <div className={styles.extraBox}>
@@ -298,9 +271,7 @@ export default function TriagemPage() {
             </div>
           </Question>
 
-          {/* =================================================
-              PERGUNTA 3
-          ================================================= */}
+
 
           <Question
             number="3."
@@ -321,9 +292,6 @@ export default function TriagemPage() {
             </div>
           </Question>
 
-          {/* =================================================
-              PERGUNTA 4
-          ================================================= */}
 
           <Question
             number="4."
@@ -344,16 +312,14 @@ export default function TriagemPage() {
             </div>
           </Question>
 
-          {/* =================================================
-              PERGUNTA 5
-          ================================================= */}
+
 
           <Question
             number="5."
             text="Utiliza algum medicamento?"
           >
             <div className={styles.questionWithExtra}>
-              {/* BOTÕES */}
+
 
               <div className={styles.options}>
                 <RadioButton
@@ -369,7 +335,7 @@ export default function TriagemPage() {
                 />
               </div>
 
-              {/* CAMPO EXTRA */}
+
 
               {medicamento === "sim" && (
                 <div className={styles.extraBox}>
@@ -391,14 +357,9 @@ export default function TriagemPage() {
           </Question>
         </section>
 
-        {/* ===================================================
-            RODAPÉ
-        =================================================== */}
 
         <div className={styles.footer}>
-          <span className={styles.requiredText}>
-            Todos os campos são obrigatórios.
-          </span>
+
 
           <div className={styles.footerButtons}>
             <button className={styles.backButton}>
@@ -417,9 +378,6 @@ export default function TriagemPage() {
 }
 
 
-/* =========================================================
-   COMPONENTE DE PERGUNTA
-========================================================= */
 
 function Question({ number, text, children }) {
   return (
@@ -455,4 +413,6 @@ function RadioButton({
       {label}
     </button>
   );
+  
+
 }

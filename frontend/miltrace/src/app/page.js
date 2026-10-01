@@ -1,3 +1,4 @@
+import Link from "next/link";
 import Sidebar from "@/components/Sidebar/sidebar";
 
 export default function Home() {
@@ -78,10 +79,12 @@ export default function Home() {
 
               </div>
 
-              <button className="w-full rounded-lg bg-blue-500 py-3 text-sm font-semibold text-white transition hover:bg-blue-600">
+              <Link
+                href="/Triagem"
+                className="block w-full rounded-lg bg-blue-500 py-3 text-center text-sm font-semibold text-white transition hover:bg-blue-600"
+              >
                 Iniciar triagem
-              </button>
-
+              </Link>
             </div>
 
 

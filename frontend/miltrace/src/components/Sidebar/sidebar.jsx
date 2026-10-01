@@ -1,8 +1,10 @@
+import Link from "next/link";
+
 export default function Sidebar() {
   return (
     <aside className="fixed left-0 top-0 flex h-screen w-64 flex-col border-r border-slate-200 bg-white">
 
-      {/* Logo */}
+      {/* Logo
       <div className="flex h-20 items-center border-b border-slate-200 px-7">
         <div className="flex items-center gap-3">
           <div className="flex h-9 w-9 items-center justify-center rounded-xl bg-blue-500 text-lg text-white">
@@ -13,7 +15,7 @@ export default function Sidebar() {
             MilkTrace
           </span>
         </div>
-      </div>
+      </div> */}
 
       {/* Menu */}
       <nav className="flex-1 px-4 py-6">
@@ -24,20 +26,26 @@ export default function Sidebar() {
 
         <div className="space-y-2">
 
-          <button className="flex w-full items-center gap-3 rounded-lg bg-blue-50 px-4 py-3 text-left font-medium text-blue-600">
-            <span>⌂</span>
-            Início
-          </button>
+      <Link
+        href="/"
+        className="flex w-full items-center gap-3 rounded-lg bg-blue-50 px-4 py-3 text-left font-medium text-blue-600"
+      >
+        <span>⌂</span>
+        Início
+      </Link>
 
           <button className="flex w-full items-center gap-3 rounded-lg px-4 py-3 text-left text-slate-500 transition hover:bg-slate-50 hover:text-blue-600">
             <span>♙</span>
             Doadoras
           </button>
 
-          <button className="flex w-full items-center gap-3 rounded-lg px-4 py-3 text-left text-slate-500 transition hover:bg-slate-50 hover:text-blue-600">
+          <Link
+            href="/Triagem"
+            className="flex w-full items-center gap-3 rounded-lg px-4 py-3 text-left text-slate-500 transition hover:bg-slate-50 hover:text-blue-600"
+          >
             <span>▣</span>
             Triagens
-          </button>
+          </Link>
 
           <button className="flex w-full items-center gap-3 rounded-lg px-4 py-3 text-left text-slate-500 transition hover:bg-slate-50 hover:text-blue-600">
             <span>◷</span>

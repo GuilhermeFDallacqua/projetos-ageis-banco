@@ -1,0 +1,456 @@
+.container {
+  min-height: 100vh;
+  display: flex;
+  background: #f0f4fa;
+  color: #1f3657;
+  font-family: Arial, Helvetica, sans-serif;
+}
+
+.main {
+  flex: 1;
+  margin-left: 256px;
+  padding: 32px 35px 30px;
+  min-width: 0;
+  box-sizing: border-box;
+}
+
+.header {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  margin-bottom: 30px;
+}
+
+.header h1 {
+  margin: 0 0 8px;
+  color: #1d3556;
+  font-size: 24px;
+  line-height: 1;
+  font-weight: 700;
+}
+
+.doadora {
+  display: inline-flex;
+  background: #e5f4fa;
+  color: #1685ba;
+  border-radius: 6px;
+  padding: 5px 9px;
+  font-size: 11px;
+  font-weight: 700;
+}
+
+.helpButton {
+  height: 34px;
+  border: 1px solid #cbddea;
+  border-radius: 7px;
+  background: white;
+  color: #647c96;
+  display: flex;
+  align-items: center;
+  gap: 7px;
+  padding: 0 13px;
+  font-size: 10px;
+}
+
+.steps {
+  display: flex;
+  align-items: flex-start;
+  justify-content: center;
+  margin-bottom: 30px;
+  width: 100%;
+}
+
+.step {
+  width: 115px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 8px;
+  color: #71859d;
+  font-size: 10px;
+  text-align: center;
+  white-space: nowrap;
+}
+
+.stepCircle {
+  width: 27px;
+  height: 27px;
+  border-radius: 50%;
+  border: 1px solid #c9dce9;
+  background: #f6f9fb;
+  color: #7690a7;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 11px;
+}
+
+.stepCircle.completed {
+  border-color: #28b9a9;
+  background: white;
+  color: #20aa9a;
+}
+
+.stepCircle.current {
+  border-color: #368fb9;
+  background: #358bb4;
+  color: white;
+}
+
+.stepLine {
+  width: 42px;
+  height: 2px;
+  margin-top: 12px;
+  background: #d9e6ef;
+}
+
+.step:nth-of-type(2) + .stepLine {
+  background: #55b9b3;
+}
+
+.card {
+  width: 100%;
+  max-width: 1000px;
+  margin: 0 auto;
+  background: #ffffff;
+  border: 1px solid #cbdde9;
+  border-radius: 12px;
+  padding: 30px 32px 0;
+  box-sizing: border-box;
+}
+
+.cardHeader h2 {
+  margin: 0 0 8px;
+  color: #1f3859;
+  font-size: 18px;
+  font-weight: 700;
+}
+
+.cardHeader p {
+  margin: 0;
+  color: #71869c;
+  font-size: 11px;
+}
+
+.divider {
+  height: 1px;
+  background: #dce7ee;
+  margin: 22px 0 0;
+}
+
+.question {
+  padding: 24px 0;
+  border-bottom: 1px solid #e5edf2;
+}
+
+.question:last-child {
+  border-bottom: none;
+  padding-bottom: 26px;
+}
+
+.question h3 {
+  margin: 0 0 13px;
+  font-size: 14px;
+  color: #223d60;
+  font-weight: 700;
+}
+
+.question h3 span {
+  color: #1679b4;
+}
+
+.options {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.radioButton {
+  height: 36px;
+  min-width: 78px;
+  border: 1px solid #cbdde8;
+  border-radius: 7px;
+  background: white;
+  color: #314b67;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  padding: 0 13px;
+  font-size: 12px;
+  cursor: pointer;
+}
+
+.radioButton:hover {
+  border-color: #3996c4;
+}
+
+.radioButton.radioSelected {
+  border-color: #208bc0;
+  color: #1b618e;
+  background: #f5fbfe;
+}
+
+.radioCircle {
+  width: 14px;
+  height: 14px;
+  border: 1px solid #7790a6;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  box-sizing: border-box;
+}
+
+.radioSelected .radioCircle {
+  border-color: #208bc0;
+}
+
+.radioCircle span {
+  width: 7px;
+  height: 7px;
+  border-radius: 50%;
+  background: #208bc0;
+}
+
+.questionWithExtra {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 12px;
+}
+
+.extraBox {
+  background: #edf5f9;
+  border-radius: 8px;
+  padding: 12px 14px 13px;
+  width: 360px;
+  min-width: 0;
+  box-sizing: border-box;
+}
+
+.extraBox label {
+  display: block;
+  color: #294564;
+  font-size: 11px;
+  font-weight: 700;
+  margin-bottom: 8px;
+}
+
+.selectRow {
+  display: flex;
+  gap: 8px;
+}
+
+.selectWrapper {
+  height: 36px;
+  flex: 1;
+  position: relative;
+}
+
+.selectWrapper select {
+  width: 100%;
+  height: 100%;
+  appearance: none;
+  border: 1px solid #3193c4;
+  border-radius: 7px;
+  background: white;
+  padding: 0 32px 0 11px;
+  color: #344d68;
+  font-size: 11px;
+  outline: none;
+}
+
+.selectWrapper svg {
+  position: absolute;
+  right: 9px;
+  top: 50%;
+  transform: translateY(-50%);
+  color: #4d718d;
+  pointer-events: none;
+}
+
+.extraBox input {
+  width: 100%;
+  height: 36px;
+  border: 1px solid #3193c4;
+  border-radius: 7px;
+  padding: 0 11px;
+  box-sizing: border-box;
+  font-size: 11px;
+  color: #334b66;
+  background: white;
+  outline: none;
+}
+
+.extraBox input:focus {
+  box-shadow: 0 0 0 2px rgba(49, 147, 196, 0.1);
+}
+
+.footer {
+  width: 100%;
+  max-width: 1000px;
+  margin: 30px auto 0;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.requiredText {
+  color: #72869c;
+  font-size: 10px;
+}
+
+.footerButtons {
+  display: flex;
+  gap: 10px;
+}
+
+.backButton,
+.nextButton {
+  height: 38px;
+  border-radius: 7px;
+  padding: 0 20px;
+  font-size: 11px;
+  font-weight: 700;
+  cursor: pointer;
+}
+
+.backButton {
+  background: white;
+  border: 1px solid #3293c3;
+  color: #1680b8;
+}
+
+.nextButton {
+  background: #2788b8;
+  border: 1px solid #2788b8;
+  color: white;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.backButton:hover {
+  background: #f2f9fc;
+}
+
+.nextButton:hover {
+  background: #217ba8;
+}
+
+@media (max-width: 1100px) {
+  .main {
+    padding: 28px 24px;
+  }
+
+  .card,
+  .footer {
+    max-width: 100%;
+  }
+
+  .step {
+    width: 95px;
+  }
+
+  .stepLine {
+    width: 30px;
+  }
+}
+
+@media (max-width: 850px) {
+  .main {
+    padding: 22px 18px;
+  }
+
+  .step {
+    width: 75px;
+    font-size: 9px;
+  }
+
+  .stepLine {
+    width: 20px;
+  }
+
+  .card,
+  .footer {
+    max-width: 100%;
+  }
+}
+
+@media (max-width: 680px) {
+  .main {
+    margin-left: 256px;
+    padding: 22px 14px;
+  }
+
+  .header {
+    flex-direction: column;
+    gap: 15px;
+  }
+
+  .header h1 {
+    font-size: 21px;
+  }
+
+  .steps {
+    overflow-x: auto;
+    justify-content: flex-start;
+    padding-bottom: 8px;
+  }
+
+  .questionWithExtra {
+    flex-direction: column;
+  }
+
+  .extraBox {
+    width: 100%;
+    min-width: 0;
+  }
+
+  .footer {
+    flex-direction: column;
+    align-items: stretch;
+    gap: 15px;
+  }
+
+  .footerButtons {
+    justify-content: flex-end;
+  }
+}
+
+@media (max-width: 450px) {
+  .main {
+    margin-left: 256px;
+    padding: 18px 12px;
+  }
+
+  .card {
+    padding: 20px 16px 0;
+  }
+
+  .cardHeader h2 {
+    font-size: 16px;
+  }
+
+  .cardHeader p {
+    font-size: 10px;
+  }
+
+  .helpButton {
+    width: 100%;
+    justify-content: center;
+  }
+
+  .selectRow {
+    flex-direction: column;
+  }
+
+  .radioButton {
+    min-width: 70px;
+  }
+
+  .question h3 {
+    font-size: 13px;
+  }
+}

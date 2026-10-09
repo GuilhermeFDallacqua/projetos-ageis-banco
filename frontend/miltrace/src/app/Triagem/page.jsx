@@ -13,15 +13,13 @@ import styles from "./triagem.module.css";
 
 export default function TriagemPage() {
   const [transfusao, setTransfusao] = useState("nao");
-  const [tatuagem, setTatuagem] = useState("sim");
-  const [fumante, setFumante] = useState("nao");
-  const [alcool, setAlcool] = useState("nao");
-  const [medicamento, setMedicamento] = useState("sim");
-
+  const [tatuagem, setTatuagem] = useState("nao");
   const [mesTatuagem, setMesTatuagem] = useState("");
   const [anoTatuagem, setAnoTatuagem] = useState("");
-  const [nomeMedicamento, setNomeMedicamento] =
-    useState("Dipirona 500mg");
+  const [fumante, setFumante] = useState("nao");
+  const [alcool, setAlcool] = useState("nao");
+  const [medicamento, setMedicamento] = useState("nao");
+  const [nomeMedicamento, setNomeMedicamento] = useState("");
 
   return (
     <div className={styles.container}>
@@ -46,7 +44,7 @@ export default function TriagemPage() {
             <div
               className={`${styles.stepCircle} ${styles.completed}`}
             >
-              <Check size={13} />
+              <Check size={15} />
             </div>
 
             <span>1. Identificação</span>

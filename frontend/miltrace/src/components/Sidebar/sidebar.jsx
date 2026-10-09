@@ -26,13 +26,13 @@ export default function Sidebar() {
 
         <div className="space-y-2">
 
-      <Link
-        href="/"
-        className="flex w-full items-center gap-3 rounded-lg bg-blue-50 px-4 py-3 text-left font-medium text-blue-600"
-      >
-        <span>⌂</span>
-        Início
-      </Link>
+          <Link
+            href="/"
+            className="flex w-full items-center gap-3 rounded-lg bg-blue-50 px-4 py-3 text-left font-medium text-blue-600"
+          >
+            <span>⌂</span>
+            Início
+          </Link>
 
           <button className="flex w-full items-center gap-3 rounded-lg px-4 py-3 text-left text-slate-500 transition hover:bg-slate-50 hover:text-blue-600">
             <span>♙</span>
@@ -81,7 +81,6 @@ export default function Sidebar() {
         </button>
 
       </div>
-
     </aside>
   );
 }

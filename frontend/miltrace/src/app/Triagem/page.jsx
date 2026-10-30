@@ -1,6 +1,7 @@
 "use client";
 
 import { Fragment, useState } from "react";
+import Link from "next/link";
 import {
   Check,
   ChevronRight,
@@ -28,6 +29,8 @@ const steps = [
 export default function TriagemPage() {
   const [currentStep, setCurrentStep] = useState(0);
   const [form, setForm] = useState(initialForm);
+  const [direction, setDirection] = useState("forward");
+  const [finished, setFinished] = useState(false);
 
   const isFirstStep = currentStep === 0;
   const isLastStep = currentStep === steps.length - 1;
@@ -43,6 +46,7 @@ export default function TriagemPage() {
   }
 
   function goToStep(index) {
+    setDirection(index >= currentStep ? "forward" : "back");
     setCurrentStep(index);
     window.scrollTo({ top: 0, behavior: "smooth" });
   }
@@ -52,7 +56,61 @@ export default function TriagemPage() {
 
     // Conectar aqui: await trialService.create(payload)
     // (import { trialService } from "@/services/trialService")
-    return payload;
+    console.info("Triagem pronta para envio:", payload);
+
+    setFinished(true);
+    window.scrollTo({ top: 0, behavior: "smooth" });
+  }
+
+  function handleRestart() {
+    setForm(initialForm);
+    setFinished(false);
+    setDirection("forward");
+    setCurrentStep(0);
+  }
+
+  if (finished) {
+    return (
+      <div className={styles.container}>
+
+        <Sidebar />
+
+        <main className={styles.main}>
+
+          <section className={`${styles.card} ${styles.successCard}`}>
+
+            <div className={styles.successIcon}>
+              <Check size={34} />
+            </div>
+
+            <h2>Triagem finalizada!</h2>
+
+            <p>
+              A triagem de <strong>{form.fullName}</strong> foi registrada
+              com sucesso.
+            </p>
+
+            <div className={styles.footerButtons}>
+
+              <Link href="/Doadoras" className={styles.backButton}>
+                Ver doadoras
+              </Link>
+
+              <button
+                className={styles.nextButton}
+                onClick={handleRestart}
+              >
+                Nova triagem
+                <ChevronRight size={16} />
+              </button>
+
+            </div>
+
+          </section>
+
+        </main>
+      </div>
+    );
   }
 
   return (
@@ -62,7 +120,7 @@ export default function TriagemPage() {
 
       <main className={styles.main}>
 
-        <header className={styles.header}>
+        <header className={`${styles.header} ${styles.fadeUp}`}>
           <div>
             <h1>Nova Triagem</h1>
 
@@ -112,11 +170,20 @@ export default function TriagemPage() {
 
         </div>
 
-        <StepComponent
-          form={form}
-          update={update}
-          goToStep={goToStep}
-        />
+        <div
+          key={currentStep}
+          className={
+            direction === "forward"
+              ? styles.stepEnterForward
+              : styles.stepEnterBack
+          }
+        >
+          <StepComponent
+            form={form}
+            update={update}
+            goToStep={goToStep}
+          />
+        </div>
 
         <div className={styles.footer}>
 

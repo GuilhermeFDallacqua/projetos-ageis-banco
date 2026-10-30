@@ -40,7 +40,7 @@ export default function DoadorasPage() {
         <div className="mx-auto max-w-7xl">
 
           {/* Cabeçalho */}
-          <section className="mb-9 flex flex-wrap items-end justify-between gap-4">
+          <section className="mb-9 flex flex-wrap items-end justify-between gap-4 animate-fade-up">
             <div>
               <h1 className="text-3xl font-bold text-slate-800">
                 Doadoras
@@ -53,7 +53,7 @@ export default function DoadorasPage() {
 
             <Link
               href="/Triagem"
-              className="rounded-lg bg-blue-500 px-5 py-3 text-sm font-semibold text-white transition hover:bg-blue-600"
+              className="rounded-lg bg-blue-500 px-5 py-3 text-sm font-semibold text-white shadow-sm transition duration-200 hover:-translate-y-0.5 hover:bg-blue-600 hover:shadow-md active:translate-y-0 active:scale-[0.98]"
             >
               ✚ Nova triagem
             </Link>
@@ -61,7 +61,10 @@ export default function DoadorasPage() {
 
 
           {/* Lista de doadoras */}
-          <section className="overflow-hidden rounded-2xl border border-slate-200 bg-white shadow-sm">
+          <section
+            className="overflow-hidden rounded-2xl border border-slate-200 bg-white shadow-sm animate-fade-up"
+            style={{ "--i": 3 }}
+          >
 
             <div className="flex flex-wrap items-center justify-between gap-4 border-b border-slate-200 px-7 py-5">
               <div>
@@ -110,11 +113,12 @@ export default function DoadorasPage() {
 
                 <tbody className="divide-y divide-slate-100">
 
-                  {filtradas.map((doadora) => (
+                  {filtradas.map((doadora, index) => (
 
                     <tr
                       key={doadora.id}
-                      className="transition hover:bg-slate-50"
+                      className="animate-fade-in transition-colors hover:bg-slate-50"
+                      style={{ "--i": index }}
                     >
 
                       <td className="px-7 py-5 text-sm font-semibold text-slate-700">

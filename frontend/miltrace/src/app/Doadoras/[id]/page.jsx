@@ -105,7 +105,7 @@ export default function DoadoraPage() {
           </Link>
 
           {/* Cabeçalho */}
-          <section className="mb-9 mt-4 flex flex-wrap items-end justify-between gap-4">
+          <section className="mb-9 mt-4 flex flex-wrap items-end justify-between gap-4 animate-fade-up">
             <div>
               <h1 className="text-3xl font-bold text-slate-800">
                 {doadora.full_name}
@@ -119,14 +119,14 @@ export default function DoadoraPage() {
             <div className="flex gap-3">
               <button
                 onClick={handleDelete}
-                className="rounded-lg border border-red-300 px-5 py-3 text-sm font-semibold text-red-500 transition hover:bg-red-50"
+                className="rounded-lg border border-red-300 px-5 py-3 text-sm font-semibold text-red-500 transition duration-200 hover:-translate-y-0.5 hover:bg-red-50 active:translate-y-0 active:scale-[0.98]"
               >
                 Excluir
               </button>
 
               <Link
                 href="/Triagem"
-                className="rounded-lg bg-blue-500 px-5 py-3 text-sm font-semibold text-white transition hover:bg-blue-600"
+                className="rounded-lg bg-blue-500 px-5 py-3 text-sm font-semibold text-white shadow-sm transition duration-200 hover:-translate-y-0.5 hover:bg-blue-600 hover:shadow-md active:translate-y-0 active:scale-[0.98]"
               >
                 Nova triagem
               </Link>
@@ -135,11 +135,12 @@ export default function DoadoraPage() {
 
 
           <div className="space-y-6">
-            {sections.map((section) => (
+            {sections.map((section, index) => (
 
               <section
                 key={section.title}
-                className="rounded-2xl border border-slate-200 bg-white shadow-sm"
+                className="animate-fade-up rounded-2xl border border-slate-200 bg-white shadow-sm"
+                style={{ "--i": index + 1 }}
               >
                 <div className="border-b border-slate-200 px-7 py-5">
                   <h2 className="text-lg font-semibold text-slate-800">

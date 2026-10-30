@@ -31,7 +31,7 @@ export default function HistoricoPage() {
         <div className="mx-auto max-w-7xl">
 
           {/* Cabeçalho */}
-          <section className="mb-9">
+          <section className="mb-9 animate-fade-up">
             <h1 className="text-3xl font-bold text-slate-800">
               Histórico
             </h1>
@@ -53,7 +53,8 @@ export default function HistoricoPage() {
               return (
                 <div
                   key={item}
-                  className="rounded-2xl border border-slate-200 bg-white p-7 shadow-sm"
+                  className="animate-fade-up rounded-2xl border border-slate-200 bg-white p-7 shadow-sm transition duration-300 hover:-translate-y-1 hover:shadow-md"
+                  style={{ "--i": filtros.indexOf(item) + 1 }}
                 >
                   <p className="text-sm text-slate-500">
                     {item === "Todas" ? "Total de triagens" : item}
@@ -69,7 +70,10 @@ export default function HistoricoPage() {
 
 
           {/* Lista */}
-          <section className="overflow-hidden rounded-2xl border border-slate-200 bg-white shadow-sm">
+          <section
+            className="overflow-hidden rounded-2xl border border-slate-200 bg-white shadow-sm animate-fade-up"
+            style={{ "--i": 3 }}
+          >
 
             <div className="flex flex-wrap items-center justify-between gap-4 border-b border-slate-200 px-7 py-5">
               <div>
@@ -120,11 +124,12 @@ export default function HistoricoPage() {
 
                 <tbody className="divide-y divide-slate-100">
 
-                  {filtradas.map((triagem) => (
+                  {filtradas.map((triagem, index) => (
 
                     <tr
                       key={triagem.id}
-                      className="transition hover:bg-slate-50"
+                      className="animate-fade-in transition-colors hover:bg-slate-50"
+                      style={{ "--i": index }}
                     >
 
                       <td className="px-7 py-5 text-sm font-semibold text-slate-700">

@@ -44,7 +44,7 @@ export default function Home() {
         <div className="mx-auto max-w-7xl">
 
           {/* Cabeçalho */}
-          <section className="mb-9">
+          <section className="mb-9 animate-fade-up">
             <h1 className="text-3xl font-bold text-slate-800">
               Olá, Maria!
             </h1>
@@ -59,7 +59,10 @@ export default function Home() {
           <section className="mb-10 grid grid-cols-1 gap-6 lg:grid-cols-2">
 
             {/* Nova Triagem */}
-            <div className="rounded-2xl border border-slate-200 bg-white p-7 shadow-sm">
+            <div
+              className="animate-fade-up rounded-2xl border border-slate-200 bg-white p-7 shadow-sm transition duration-300 hover:-translate-y-1 hover:shadow-md"
+              style={{ "--i": 1 }}
+            >
 
               <div className="mb-6 flex items-start gap-4">
 
@@ -81,7 +84,7 @@ export default function Home() {
 
               <Link
                 href="/Triagem"
-                className="block w-full rounded-lg bg-blue-500 py-3 text-center text-sm font-semibold text-white transition hover:bg-blue-600"
+                className="block w-full rounded-lg bg-blue-500 py-3 text-center text-sm font-semibold text-white shadow-sm transition duration-200 hover:-translate-y-0.5 hover:bg-blue-600 hover:shadow-md active:translate-y-0 active:scale-[0.98]"
               >
                 Iniciar triagem
               </Link>
@@ -89,7 +92,10 @@ export default function Home() {
 
 
             {/* Consultar Doadora */}
-            <div className="rounded-2xl border border-slate-200 bg-white p-7 shadow-sm">
+            <div
+              className="animate-fade-up rounded-2xl border border-slate-200 bg-white p-7 shadow-sm transition duration-300 hover:-translate-y-1 hover:shadow-md"
+              style={{ "--i": 2 }}
+            >
 
               <div className="mb-6 flex items-start gap-4">
 
@@ -111,7 +117,7 @@ export default function Home() {
 
               <Link
                 href="/Doadoras"
-                className="block w-full rounded-lg border border-blue-500 py-3 text-center text-sm font-semibold text-blue-500 transition hover:bg-blue-50"
+                className="block w-full rounded-lg border border-blue-500 py-3 text-center text-sm font-semibold text-blue-500 transition duration-200 hover:-translate-y-0.5 hover:bg-blue-50 active:translate-y-0 active:scale-[0.98]"
               >
                 Consultar
               </Link>
@@ -122,7 +128,10 @@ export default function Home() {
 
 
           {/* Triagens recentes */}
-          <section className="overflow-hidden rounded-2xl border border-slate-200 bg-white shadow-sm">
+          <section
+            className="overflow-hidden rounded-2xl border border-slate-200 bg-white shadow-sm animate-fade-up"
+            style={{ "--i": 3 }}
+          >
 
             <div className="border-b border-slate-200 px-7 py-5">
               <h2 className="text-lg font-semibold text-slate-800">
@@ -174,11 +183,12 @@ export default function Home() {
 
                 <tbody className="divide-y divide-slate-100">
 
-                  {triagens.map((triagem) => (
+                  {triagens.map((triagem, index) => (
 
                     <tr
                       key={triagem.id}
-                      className="transition hover:bg-slate-50"
+                      className="animate-fade-in transition-colors hover:bg-slate-50"
+                      style={{ "--i": index }}
                     >
 
                       {/* ID */}
@@ -219,9 +229,12 @@ export default function Home() {
                       {/* Ação */}
                       <td className="px-7 py-5 text-right">
 
-                        <button className="text-sm font-semibold text-blue-500 transition hover:text-blue-700">
+                        <Link
+                          href={`/Doadoras/${triagem.id}`}
+                          className="text-sm font-semibold text-blue-500 transition hover:text-blue-700"
+                        >
                           Visualizar
-                        </button>
+                        </Link>
 
                       </td>
 

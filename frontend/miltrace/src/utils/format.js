@@ -152,3 +152,14 @@ export function groupDonors(trials) {
 
   return [...donors.values()];
 }
+
+// Status da avaliação da triagem (coluna "status" da tabela trials)
+export const TRIAL_STATUS = {
+  pendente: { label: "Pendente", className: "bg-orange-50 text-orange-500" },
+  aprovada: { label: "Aprovada", className: "bg-green-50 text-green-600" },
+  recusada: { label: "Recusada", className: "bg-red-50 text-red-500" },
+};
+
+export function getTrialStatus(status) {
+  return TRIAL_STATUS[(status || "pendente").toLowerCase()] || TRIAL_STATUS.pendente;
+}

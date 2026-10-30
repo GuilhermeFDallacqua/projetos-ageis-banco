@@ -22,6 +22,17 @@ export const CARGOS = [
   "Administrador",
 ];
 
+// Valores das colunas "type_user" e "status" da tabela users
+export const TIPOS_USUARIO = [
+  { value: "comum", label: "Comum" },
+  { value: "admin", label: "Administrador" },
+];
+
+export const SITUACOES_USUARIO = [
+  { value: "ativo", label: "Ativo" },
+  { value: "inativo", label: "Inativo" },
+];
+
 const emptyUser = {
   name: "",
   email: "",
@@ -31,6 +42,8 @@ const emptyUser = {
   dateBirth: "",
   password: "",
   confirmPassword: "",
+  typeUser: "comum",
+  status: "ativo",
 };
 
 // Converte a linha da tabela "users" para o formato do formulário
@@ -43,6 +56,8 @@ export function userRowToForm(row) {
     telephoneNumber: maskPhone(row.telephone_number || ""),
     CPF: maskCPF(row.cpf || ""),
     dateBirth: row.date_birth ? String(row.date_birth).slice(0, 10) : "",
+    typeUser: (row.type_user || "comum").toLowerCase(),
+    status: (row.status || "ativo").toLowerCase(),
   };
 }
 
@@ -71,6 +86,7 @@ export default function UserForm({
   submitLabel,
   cancelHref,
   onSubmit,
+  showAccess = true,
 }) {
   const isCreate = mode === "create";
   const [form, setForm] = useState(initial || emptyUser);
@@ -97,6 +113,11 @@ export default function UserForm({
       CPF: onlyDigits(form.CPF) || null,
       dateBirth: form.dateBirth || null,
     };
+
+    if (showAccess) {
+      payload.typeUser = form.typeUser;
+      if (!isCreate) payload.status = form.status;
+    }
 
     if (isCreate) {
       payload.email = form.email.trim().toLowerCase();
@@ -176,6 +197,35 @@ export default function UserForm({
             onChange={(e) => update("dateBirth", e.target.value)}
           />
         </Field>
+
+        {showAccess && (
+          <Field label="Tipo de acesso">
+            <select
+              value={form.typeUser}
+              onChange={(e) => update("typeUser", e.target.value)}
+            >
+              {TIPOS_USUARIO.map((tipo) => (
+                <option key={tipo.value} value={tipo.value}>{tipo.label}</option>
+              ))}
+            </select>
+          </Field>
+        )}
+
+        {showAccess && !isCreate && (
+          <Field
+            label="Situação"
+            hint={form.status === "inativo" ? "Usuários inativos não conseguem entrar no sistema." : undefined}
+          >
+            <select
+              value={form.status}
+              onChange={(e) => update("status", e.target.value)}
+            >
+              {SITUACOES_USUARIO.map((situacao) => (
+                <option key={situacao.value} value={situacao.value}>{situacao.label}</option>
+              ))}
+            </select>
+          </Field>
+        )}
 
         {isCreate && (
           <>

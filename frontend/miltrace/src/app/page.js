@@ -8,7 +8,7 @@ import {
   Search,
   Users,
   CalendarDays,
-  CalendarCheck,
+  Hourglass,
 } from "lucide-react";
 
 import PageLayout from "@/components/PageLayout/pageLayout";
@@ -18,10 +18,6 @@ import { useAuth } from "@/contexts/AuthContext";
 import { useAsync } from "@/hooks/useAsync";
 import { trialService } from "@/services/trialService";
 import { groupDonors, sortByNewest } from "@/utils/format";
-
-function isSameDay(a, b) {
-  return a.toDateString() === b.toDateString();
-}
 
 function greeting() {
   const hour = new Date().getHours();
@@ -63,12 +59,13 @@ export default function Home() {
       color: "bg-orange-50 text-orange-400",
     },
     {
-      label: "Triagens hoje",
-      value: withDate.filter((trial) =>
-        isSameDay(new Date(trial.created_at), now)
+      label: "Aguardando avaliação",
+      value: trials.filter(
+        (trial) => (trial.status || "pendente").toLowerCase() === "pendente"
       ).length,
-      icon: CalendarCheck,
+      icon: Hourglass,
       color: "bg-green-50 text-green-500",
+      href: "/Historico?status=pendente",
     },
   ];
 
@@ -105,11 +102,15 @@ export default function Home() {
       <section className="mb-6 grid grid-cols-1 gap-6 sm:grid-cols-3">
         {stats.map((stat, index) => {
           const Icon = stat.icon;
+          const Card = stat.href ? Link : "div";
 
           return (
-            <div
+            <Card
               key={stat.label}
-              className="animate-fade-up flex items-center gap-4 rounded-2xl border border-slate-200 bg-white p-6 shadow-sm"
+              href={stat.href}
+              className={`animate-fade-up flex items-center gap-4 rounded-2xl border border-slate-200 bg-white p-6 shadow-sm ${
+                stat.href ? "transition duration-300 hover:-translate-y-1 hover:shadow-md" : ""
+              }`}
               style={{ "--i": index + 1 }}
             >
               <div className={`flex h-12 w-12 shrink-0 items-center justify-center rounded-xl ${stat.color}`}>
@@ -127,7 +128,7 @@ export default function Home() {
 
                 <p className="text-sm text-slate-500">{stat.label}</p>
               </div>
-            </div>
+            </Card>
           );
         })}
       </section>

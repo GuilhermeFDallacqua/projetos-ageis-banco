@@ -102,8 +102,9 @@ async function saveWithFallback(query, trialData) {
 
 export const trialService = {
   async createTrial(trialData) {
+    // Toda triagem nova começa aguardando avaliação
     return saveWithFallback(
-      (row) => supabase.from("trials").insert([row]).select(),
+      (row) => supabase.from("trials").insert([{ ...row, status: "pendente" }]).select(),
       trialData
     );
   },
@@ -139,6 +140,28 @@ export const trialService = {
       (row) => supabase.from("trials").update(row).eq("id", id).select(),
       trialData
     );
+  },
+
+  // Aprova ou recusa a triagem (status: "aprovada" | "recusada" | "pendente")
+  async evaluateTrial(id, { status, rejectionReason, evaluatedBy }) {
+    const pending = status === "pendente";
+
+    const { data, error } = await supabase
+      .from("trials")
+      .update({
+        status: status,
+        rejection_reason: status === "recusada" ? rejectionReason : null,
+        evaluated_by: pending ? null : evaluatedBy || null,
+        evaluated_at: pending ? null : new Date().toISOString(),
+      })
+      .eq("id", id)
+      .select();
+
+    if (error) {
+      throw new Error(error.message);
+    }
+
+    return data[0];
   },
 
   async deleteTrial(id) {

@@ -3,13 +3,13 @@ import { trialService } from "../services/trialService.js";
 
 export async function userRoutes(fastify, options) {
     fastify.post('/createUser', async (req, res) => {
-        const { name, password, confirmPassword, email, position, telephoneNumber, CPF, dateBirth } = req.body;
+        const { name, password, confirmPassword, email, position, telephoneNumber, CPF, dateBirth, typeUser } = req.body;
 
         try {
             if (password !== confirmPassword) {
                 return res.status(400).send({ error: 'As senhas não coincidem.' });
             }
-            const user = await userService.createUser(name, password, email, position, telephoneNumber, CPF, dateBirth);
+            const user = await userService.createUser(name, password, email, position, telephoneNumber, CPF, dateBirth, typeUser);
             return res.status(201).send(user);
         } catch (err) {
             return res.status(400).send({ error: err.message });
@@ -120,6 +120,28 @@ export async function trialRoutes(fastify, options) {
             return res.status(200).send({
                 message: 'Triagem atualizada.',
                 data: updatedTrial
+            });
+        } catch (err) {
+            return res.status(400).send({ error: err.message });
+        }
+    });
+
+    fastify.put('/evaluateTrial/:id', async (req, res) => {
+        try {
+            const { status } = req.body;
+
+            if (!['pendente', 'aprovada', 'recusada'].includes(status)) {
+                return res.status(400).send({ error: 'Status inválido.' });
+            }
+
+            if (status === 'recusada' && !req.body.rejectionReason) {
+                return res.status(400).send({ error: 'Informe o motivo da recusa.' });
+            }
+
+            const evaluatedTrial = await trialService.evaluateTrial(req.params.id, req.body);
+            return res.status(200).send({
+                message: 'Triagem avaliada.',
+                data: evaluatedTrial
             });
         } catch (err) {
             return res.status(400).send({ error: err.message });

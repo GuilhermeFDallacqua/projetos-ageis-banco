@@ -12,6 +12,7 @@ import {
   EmptyState,
   ErrorState,
 } from "@/components/States/states";
+import StatusBadge from "@/components/StatusBadge/statusBadge";
 import { useAsync } from "@/hooks/useAsync";
 import { useToast } from "@/contexts/ToastContext";
 import { trialService } from "@/services/trialService";
@@ -156,7 +157,7 @@ function Doadoras() {
         ) : (
           <div className="overflow-x-auto">
 
-            <table className="w-full min-w-[760px]">
+            <table className="w-full min-w-[860px]">
 
               <thead className="bg-slate-50">
 
@@ -164,6 +165,7 @@ function Doadoras() {
                   <th className="px-7 py-4">Doadora</th>
                   <th className="px-7 py-4">Telefone</th>
                   <th className="px-7 py-4">Zona</th>
+                  <th className="px-7 py-4">Status</th>
                   <th className="px-7 py-4">Triagens</th>
                   <th className="px-7 py-4">Última triagem</th>
                   <th className="px-7 py-4 text-right">Ação</th>
@@ -175,7 +177,7 @@ function Doadoras() {
               <tbody className="divide-y divide-slate-100">
 
                 {loading ? (
-                  <SkeletonRows columns={6} />
+                  <SkeletonRows columns={7} />
                 ) : (
                   filtradas.map((doadora, index) => (
 
@@ -208,19 +210,13 @@ function Doadoras() {
                       </td>
 
                       <td className="px-7 py-4">
-                        {doadora.latest.zone ? (
-                          <span
-                            className={`inline-flex rounded-full px-3 py-1 text-xs font-semibold ${
-                              doadora.latest.zone === "RURAL"
-                                ? "bg-green-50 text-green-600"
-                                : "bg-blue-50 text-blue-600"
-                            }`}
-                          >
-                            {formatZone(doadora.latest.zone)}
-                          </span>
-                        ) : (
-                          <span className="text-sm text-slate-400">—</span>
-                        )}
+                        <span className="text-sm text-slate-500">
+                          {formatZone(doadora.latest.zone)}
+                        </span>
+                      </td>
+
+                      <td className="px-7 py-4">
+                        <StatusBadge status={doadora.latest.status} />
                       </td>
 
                       <td className="px-7 py-4 text-sm text-slate-500">

@@ -10,14 +10,21 @@ import {
   Trash2,
   AlertTriangle,
   CheckCircle2,
+  XCircle,
+  Hourglass,
+  RotateCcw,
 } from "lucide-react";
 
 import PageLayout from "@/components/PageLayout/pageLayout";
 import ConfirmDialog from "@/components/ConfirmDialog/confirmDialog";
-import { SkeletonBlock, ErrorState } from "@/components/States/states";
+import RejectDialog from "@/components/RejectDialog/rejectDialog";
+import StatusBadge from "@/components/StatusBadge/statusBadge";
+import { SkeletonBlock, ErrorState, Spinner } from "@/components/States/states";
 import { useAsync } from "@/hooks/useAsync";
 import { useToast } from "@/contexts/ToastContext";
 import { trialService } from "@/services/trialService";
+import { userService } from "@/services/userService";
+import { useAuth } from "@/contexts/AuthContext";
 import {
   formatCPF,
   formatPhone,
@@ -87,24 +94,70 @@ export default function DoadoraPage() {
   const { id } = useParams();
   const router = useRouter();
   const toast = useToast();
+  const { user } = useAuth();
   const [confirmOpen, setConfirmOpen] = useState(false);
   const [deleting, setDeleting] = useState(false);
+  const [rejectOpen, setRejectOpen] = useState(false);
+  const [evaluating, setEvaluating] = useState(null);
 
   // Carrega a triagem e as demais triagens da mesma doadora (mesmo CPF)
   const loadData = useCallback(async () => {
-    const [trial, all] = await Promise.all([
+    const [trial, all, users] = await Promise.all([
       trialService.getById(id),
       trialService.getAll(),
+      // Só para mostrar o nome de quem avaliou; se falhar, segue sem
+      userService.getAll().catch(() => []),
     ]);
 
     const history = sortByNewest(
       all.filter((item) => trial.cpf && item.cpf === trial.cpf)
     );
 
-    return { trial, history: history.length ? history : [trial] };
+    return { trial, users, history: history.length ? history : [trial] };
   }, [id]);
 
-  const { data, loading, error, reload } = useAsync(loadData);
+  const { data, loading, error, reload, setData } = useAsync(loadData);
+
+  async function handleEvaluate(status, rejectionReason) {
+    setEvaluating(status);
+
+    try {
+      const result = await trialService.evaluate(id, {
+        status,
+        rejectionReason,
+        evaluatedBy: user.id,
+      });
+
+      // Atualiza a tela sem recarregar
+      const changes = result || {
+        status,
+        rejection_reason: status === "recusada" ? rejectionReason : null,
+        evaluated_by: status === "pendente" ? null : user.id,
+        evaluated_at: status === "pendente" ? null : new Date().toISOString(),
+      };
+
+      setData((prev) => ({
+        ...prev,
+        trial: { ...prev.trial, ...changes },
+        history: prev.history.map((item) =>
+          String(item.id) === String(id) ? { ...item, ...changes } : item
+        ),
+      }));
+
+      setRejectOpen(false);
+      toast.success(
+        status === "aprovada"
+          ? "Triagem aprovada."
+          : status === "recusada"
+            ? "Triagem recusada."
+            : "Triagem voltou para avaliação."
+      );
+    } catch (err) {
+      toast.error(err.message);
+    } finally {
+      setEvaluating(null);
+    }
+  }
 
   async function handleDelete() {
     setDeleting(true);
@@ -140,6 +193,11 @@ export default function DoadoraPage() {
         <Detail
           trial={data.trial}
           history={data.history}
+          users={data.users}
+          evaluating={evaluating}
+          onApprove={() => handleEvaluate("aprovada")}
+          onReject={() => setRejectOpen(true)}
+          onReopen={() => handleEvaluate("pendente")}
           onDelete={() => setConfirmOpen(true)}
         />
       )}
@@ -156,11 +214,29 @@ export default function DoadoraPage() {
         onCancel={() => setConfirmOpen(false)}
       />
 
+      <RejectDialog
+        key={rejectOpen ? "aberto" : "fechado"}
+        open={rejectOpen}
+        donorName={data?.trial.full_name}
+        loading={evaluating === "recusada"}
+        onConfirm={(reason) => handleEvaluate("recusada", reason)}
+        onCancel={() => setRejectOpen(false)}
+      />
+
     </PageLayout>
   );
 }
 
-function Detail({ trial, history, onDelete }) {
+function Detail({
+  trial,
+  history,
+  users,
+  evaluating,
+  onApprove,
+  onReject,
+  onReopen,
+  onDelete,
+}) {
   const age = getAge(trial.birth_date);
   const attention = getAttentionPoints(trial);
 
@@ -253,9 +329,13 @@ function Detail({ trial, history, onDelete }) {
           </div>
 
           <div>
-            <h1 className="text-2xl font-bold text-slate-800 sm:text-3xl">
-              {trial.full_name}
-            </h1>
+            <div className="flex flex-wrap items-center gap-3">
+              <h1 className="text-2xl font-bold text-slate-800 sm:text-3xl">
+                {trial.full_name}
+              </h1>
+
+              <StatusBadge status={trial.status} />
+            </div>
 
             <p className="mt-1 text-slate-500">
               {formatTrialCode(trial.id)}
@@ -292,6 +372,17 @@ function Detail({ trial, history, onDelete }) {
       </section>
 
 
+      {/* Avaliação */}
+      <Evaluation
+        trial={trial}
+        users={users}
+        evaluating={evaluating}
+        onApprove={onApprove}
+        onReject={onReject}
+        onReopen={onReopen}
+      />
+
+
       {/* Pontos de atenção */}
       <section
         className={`animate-fade-up mb-6 flex items-start gap-4 rounded-2xl border p-6 ${
@@ -299,7 +390,7 @@ function Detail({ trial, history, onDelete }) {
             ? "border-orange-200 bg-orange-50"
             : "border-green-200 bg-green-50"
         }`}
-        style={{ "--i": 1 }}
+        style={{ "--i": 2 }}
       >
         {attention.length ? (
           <AlertTriangle size={22} className="mt-0.5 shrink-0 text-orange-500" />
@@ -416,6 +507,96 @@ function Detail({ trial, history, onDelete }) {
 
       </div>
     </>
+  );
+}
+
+function Evaluation({ trial, users, evaluating, onApprove, onReject, onReopen }) {
+  const status = (trial.status || "pendente").toLowerCase();
+  const evaluator = users.find((item) => item.id === trial.evaluated_by)?.name;
+  const busy = !!evaluating;
+
+  if (status === "pendente") {
+    return (
+      <section
+        className="animate-fade-up mb-6 flex flex-wrap items-center justify-between gap-4 rounded-2xl border border-slate-200 bg-white p-6 shadow-sm"
+        style={{ "--i": 1 }}
+      >
+        <div className="flex items-start gap-4">
+          <div className="flex h-11 w-11 shrink-0 items-center justify-center rounded-xl bg-orange-50 text-orange-500">
+            <Hourglass size={20} />
+          </div>
+
+          <div>
+            <p className="font-semibold text-slate-800">Aguardando avaliação</p>
+            <p className="mt-1 text-sm text-slate-500">
+              Confira os dados e os pontos de atenção antes de decidir.
+            </p>
+          </div>
+        </div>
+
+        <div className="flex gap-3">
+          <button
+            onClick={onReject}
+            disabled={busy}
+            className="flex items-center gap-2 rounded-lg border border-red-200 px-5 py-2.5 text-sm font-semibold text-red-500 transition duration-200 hover:-translate-y-0.5 hover:bg-red-50 active:translate-y-0 active:scale-[0.98] disabled:opacity-50"
+          >
+            <XCircle size={16} />
+            Recusar
+          </button>
+
+          <button
+            onClick={onApprove}
+            disabled={busy}
+            className="flex items-center gap-2 rounded-lg bg-green-500 px-5 py-2.5 text-sm font-semibold text-white shadow-sm transition duration-200 hover:-translate-y-0.5 hover:bg-green-600 hover:shadow-md active:translate-y-0 active:scale-[0.98] disabled:opacity-70"
+          >
+            {evaluating === "aprovada" ? <Spinner /> : <CheckCircle2 size={16} />}
+            Aprovar
+          </button>
+        </div>
+      </section>
+    );
+  }
+
+  const approved = status === "aprovada";
+
+  return (
+    <section
+      className={`animate-fade-up mb-6 flex flex-wrap items-start justify-between gap-4 rounded-2xl border p-6 ${
+        approved ? "border-green-200 bg-green-50" : "border-red-200 bg-red-50"
+      }`}
+      style={{ "--i": 1 }}
+    >
+      <div className="flex items-start gap-4">
+        {approved ? (
+          <CheckCircle2 size={22} className="mt-0.5 shrink-0 text-green-500" />
+        ) : (
+          <XCircle size={22} className="mt-0.5 shrink-0 text-red-500" />
+        )}
+
+        <div>
+          <p className={`font-semibold ${approved ? "text-green-700" : "text-red-700"}`}>
+            Triagem {approved ? "aprovada" : "recusada"}
+            {evaluator && ` por ${evaluator}`}
+            {trial.evaluated_at && ` em ${formatDate(trial.evaluated_at)}`}
+          </p>
+
+          {!approved && trial.rejection_reason && (
+            <p className="mt-1 text-sm text-red-700">
+              Motivo: {trial.rejection_reason}
+            </p>
+          )}
+        </div>
+      </div>
+
+      <button
+        onClick={onReopen}
+        disabled={busy}
+        className="flex items-center gap-2 rounded-lg border border-slate-300 bg-white px-4 py-2 text-sm font-semibold text-slate-600 transition hover:bg-slate-50 disabled:opacity-50"
+      >
+        {evaluating === "pendente" ? <Spinner /> : <RotateCcw size={15} />}
+        Reavaliar
+      </button>
+    </section>
   );
 }
 

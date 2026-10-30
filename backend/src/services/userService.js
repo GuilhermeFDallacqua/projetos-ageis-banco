@@ -1,7 +1,7 @@
 import { supabase, createAuthClient } from "../config/supabase.js";
 
 export const userService = {
-    async createUser(name, password, email, position, telephoneNumber, CPF, dateBirth) {
+    async createUser(name, password, email, position, telephoneNumber, CPF, dateBirth, typeUser) {
         const { data: authData, error: authError } = await createAuthClient().auth.signUp({
             email: email,
             password: password,
@@ -27,7 +27,9 @@ export const userService = {
                         position: position,
                         telephone_number: telephoneNumber,
                         cpf: CPF,
-                        date_birth: dateBirth
+                        date_birth: dateBirth,
+                        type_user: typeUser || "comum",
+                        status: "ativo"
                     },
                 ]);
             
@@ -82,7 +84,7 @@ export const userService = {
     },
 
     async updateUser(id, userData) {
-        const { name, email, position, telephoneNumber, CPF, dateBirth } = userData;
+        const { name, email, position, telephoneNumber, CPF, dateBirth, typeUser, status } = userData;
 
         // Só envia os campos informados (update parcial)
         const row = Object.fromEntries(
@@ -92,7 +94,9 @@ export const userService = {
                 position: position,
                 telephone_number: telephoneNumber,
                 cpf: CPF,
-                date_birth: dateBirth
+                date_birth: dateBirth,
+                type_user: typeUser,
+                status: status
             }).filter(([, value]) => value !== undefined)
         );
 

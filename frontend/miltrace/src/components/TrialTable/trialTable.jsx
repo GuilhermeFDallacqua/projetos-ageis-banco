@@ -1,5 +1,6 @@
 import Link from "next/link";
 
+import StatusBadge from "@/components/StatusBadge/statusBadge";
 import {
   SkeletonRows,
   EmptyState,
@@ -44,8 +45,8 @@ export default function TrialTable({
             <th className="px-7 py-4">Código</th>
             <th className="px-7 py-4">Doadora</th>
             <th className="px-7 py-4">Data</th>
-            <th className="px-7 py-4">Horário</th>
             <th className="px-7 py-4">Zona</th>
+            <th className="px-7 py-4">Status</th>
             <th className="px-7 py-4 text-right">Ação</th>
           </tr>
 
@@ -79,28 +80,22 @@ export default function TrialTable({
                   </p>
                 </td>
 
-                <td className="px-7 py-5 text-sm text-slate-500">
-                  {formatDate(trial.created_at)}
+                <td className="px-7 py-5">
+                  <p className="text-sm text-slate-600">
+                    {formatDate(trial.created_at)}
+                  </p>
+
+                  <p className="text-xs text-slate-400">
+                    {formatTime(trial.created_at)}
+                  </p>
                 </td>
 
                 <td className="px-7 py-5 text-sm text-slate-500">
-                  {formatTime(trial.created_at)}
+                  {formatZone(trial.zone)}
                 </td>
 
                 <td className="px-7 py-5">
-                  {trial.zone ? (
-                    <span
-                      className={`inline-flex rounded-full px-3 py-1 text-xs font-semibold ${
-                        trial.zone === "RURAL"
-                          ? "bg-green-50 text-green-600"
-                          : "bg-blue-50 text-blue-600"
-                      }`}
-                    >
-                      {formatZone(trial.zone)}
-                    </span>
-                  ) : (
-                    <span className="text-sm text-slate-400">—</span>
-                  )}
+                  <StatusBadge status={trial.status} />
                 </td>
 
                 <td className="px-7 py-5 text-right">

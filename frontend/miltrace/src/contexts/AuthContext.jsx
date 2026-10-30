@@ -46,6 +46,10 @@ export function AuthProvider({ children }) {
     // Busca o perfil (nome e cargo); se falhar, usa os dados do Auth
     const profile = await userService.getById(user.id).catch(() => null);
 
+    if (profile?.status?.toLowerCase() === "inativo") {
+      throw new Error("Seu usuário está inativo. Fale com o administrador.");
+    }
+
     const newSession = {
       token,
       user: {
@@ -53,6 +57,7 @@ export function AuthProvider({ children }) {
         email: user.email,
         name: profile?.name || user.user_metadata?.display_name || user.email,
         position: profile?.position || "",
+        typeUser: profile?.type_user || "comum",
       },
     };
 

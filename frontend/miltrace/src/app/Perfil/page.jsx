@@ -53,6 +53,7 @@ export default function PerfilPage() {
             initial={userRowToForm(data)}
             submitting={submitting}
             submitLabel="Salvar perfil"
+            showAccess={false}
             cancelHref="/"
             onSubmit={handleSubmit}
           />

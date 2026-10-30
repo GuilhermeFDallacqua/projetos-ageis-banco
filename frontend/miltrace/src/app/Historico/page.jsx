@@ -1,6 +1,7 @@
 "use client";
 
-import { useCallback, useState } from "react";
+import { Suspense, useCallback, useState } from "react";
+import { useSearchParams } from "next/navigation";
 import { Search, Download, ChevronLeft, ChevronRight } from "lucide-react";
 
 import PageLayout, { PageHeader } from "@/components/PageLayout/pageLayout";
@@ -16,6 +17,7 @@ import {
   formatCPF,
   formatZone,
   formatTrialCode,
+  getTrialStatus,
 } from "@/utils/format";
 
 const periodos = [
@@ -24,6 +26,15 @@ const periodos = [
   { value: "7", label: "7 dias", days: 7 },
   { value: "30", label: "30 dias", days: 30 },
 ];
+
+const statusFiltros = [
+  { value: "todos", label: "Todos os status" },
+  { value: "pendente", label: "Pendentes" },
+  { value: "aprovada", label: "Aprovadas" },
+  { value: "recusada", label: "Recusadas" },
+];
+
+const statusOf = (trial) => (trial.status || "pendente").toLowerCase();
 
 const POR_PAGINA = 10;
 
@@ -39,7 +50,7 @@ function inPeriod(trial, days) {
 }
 
 function exportCSV(trials) {
-  const header = ["Código", "Doadora", "CPF", "Data", "Horário", "Zona"];
+  const header = ["Código", "Doadora", "CPF", "Data", "Horário", "Zona", "Status", "Motivo da recusa"];
   const rows = trials.map((trial) => [
     formatTrialCode(trial.id),
     trial.full_name,
@@ -47,6 +58,8 @@ function exportCSV(trials) {
     formatDate(trial.created_at),
     formatTime(trial.created_at),
     formatZone(trial.zone),
+    getTrialStatus(trial.status).label,
+    trial.rejection_reason || "",
   ]);
 
   const csv = [header, ...rows]
@@ -65,6 +78,16 @@ function exportCSV(trials) {
 }
 
 export default function HistoricoPage() {
+  return (
+    <Suspense>
+      <Historico />
+    </Suspense>
+  );
+}
+
+function Historico() {
+  const searchParams = useSearchParams();
+  const [status, setStatus] = useState(searchParams.get("status") || "todos");
   const [periodo, setPeriodo] = useState("todas");
   const [busca, setBusca] = useState("");
   const [pagina, setPagina] = useState(1);
@@ -80,6 +103,7 @@ export default function HistoricoPage() {
   const filtradas = trials.filter(
     (trial) =>
       inPeriod(trial, days) &&
+      (status === "todos" || statusOf(trial) === status) &&
       (trial.full_name?.toLowerCase().includes(termo) ||
         (termoNumerico && trial.cpf?.includes(termoNumerico)))
   );
@@ -91,11 +115,17 @@ export default function HistoricoPage() {
     paginaAtual * POR_PAGINA
   );
 
+  // Resumo do período por status (independe do filtro de status)
+  const doPeriodo = trials.filter((trial) => inPeriod(trial, days));
+
   const resumo = [
-    { label: "Triagens no período", value: filtradas.length },
-    { label: "Zona urbana", value: filtradas.filter((t) => t.zone !== "RURAL").length },
-    { label: "Zona rural", value: filtradas.filter((t) => t.zone === "RURAL").length },
-  ];
+    { value: "pendente", label: "Pendentes", color: "text-orange-500" },
+    { value: "aprovada", label: "Aprovadas", color: "text-green-600" },
+    { value: "recusada", label: "Recusadas", color: "text-red-500" },
+  ].map((item) => ({
+    ...item,
+    total: doPeriodo.filter((trial) => statusOf(trial) === item.value).length,
+  }));
 
   function changePeriod(value) {
     setPeriodo(value);
@@ -123,21 +153,27 @@ export default function HistoricoPage() {
       {/* Resumo */}
       <section className="mb-6 grid grid-cols-1 gap-6 sm:grid-cols-3">
         {resumo.map((item, index) => (
-          <div
+          <button
             key={item.label}
-            className="animate-fade-up rounded-2xl border border-slate-200 bg-white p-6 shadow-sm"
+            onClick={() => {
+              setStatus(status === item.value ? "todos" : item.value);
+              setPagina(1);
+            }}
+            className={`animate-fade-up rounded-2xl border bg-white p-6 text-left shadow-sm transition duration-300 hover:-translate-y-1 hover:shadow-md ${
+              status === item.value ? "border-blue-400 ring-4 ring-blue-50" : "border-slate-200"
+            }`}
             style={{ "--i": index + 1 }}
           >
-            <p className="text-sm text-slate-500">{item.label}</p>
+            <p className="text-sm text-slate-500">{item.label} no período</p>
 
             {loading ? (
               <SkeletonBlock className="mt-2 h-8 w-12" />
             ) : (
-              <p className="mt-2 text-3xl font-bold text-slate-800">
-                {error ? "—" : item.value}
+              <p className={`mt-2 text-3xl font-bold ${item.color}`}>
+                {error ? "—" : item.total}
               </p>
             )}
-          </div>
+          </button>
         ))}
       </section>
 
@@ -166,22 +202,37 @@ export default function HistoricoPage() {
             ))}
           </div>
 
-          <div className="relative w-full sm:max-w-xs">
-            <Search
-              size={16}
-              className="pointer-events-none absolute left-3 top-1/2 -translate-y-1/2 text-slate-400"
-            />
-
-            <input
-              type="search"
-              value={busca}
+          <div className="flex w-full flex-wrap gap-3 sm:w-auto">
+            <select
+              value={status}
               onChange={(e) => {
-                setBusca(e.target.value);
+                setStatus(e.target.value);
                 setPagina(1);
               }}
-              placeholder="Buscar por nome ou CPF"
-              className="w-full rounded-lg border border-slate-200 py-2.5 pl-9 pr-3 text-sm text-slate-700 outline-none transition focus:border-blue-500 focus:ring-4 focus:ring-blue-50"
-            />
+              className="rounded-lg border border-slate-200 bg-white px-3 py-2.5 text-sm text-slate-600 outline-none transition focus:border-blue-500"
+            >
+              {statusFiltros.map((item) => (
+                <option key={item.value} value={item.value}>{item.label}</option>
+              ))}
+            </select>
+
+            <div className="relative w-full sm:w-64">
+              <Search
+                size={16}
+                className="pointer-events-none absolute left-3 top-1/2 -translate-y-1/2 text-slate-400"
+              />
+
+              <input
+                type="search"
+                value={busca}
+                onChange={(e) => {
+                  setBusca(e.target.value);
+                  setPagina(1);
+                }}
+                placeholder="Buscar por nome ou CPF"
+                className="w-full rounded-lg border border-slate-200 py-2.5 pl-9 pr-3 text-sm text-slate-700 outline-none transition focus:border-blue-500 focus:ring-4 focus:ring-blue-50"
+              />
+            </div>
           </div>
         </div>
 

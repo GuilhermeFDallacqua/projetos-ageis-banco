@@ -6,6 +6,7 @@ import { UserPlus } from "lucide-react";
 
 import PageLayout, { PageHeader } from "@/components/PageLayout/pageLayout";
 import ConfirmDialog from "@/components/ConfirmDialog/confirmDialog";
+import { Badge } from "@/components/StatusBadge/statusBadge";
 import {
   SkeletonRows,
   EmptyState,
@@ -15,18 +16,43 @@ import { useAsync } from "@/hooks/useAsync";
 import { useAuth } from "@/contexts/AuthContext";
 import { useToast } from "@/contexts/ToastContext";
 import { userService } from "@/services/userService";
-import { formatCPF, formatPhone, getInitials } from "@/utils/format";
+import { formatPhone, getInitials } from "@/utils/format";
+
+const isInactive = (item) => (item.status || "").toLowerCase() === "inativo";
+const isAdmin = (item) => (item.type_user || "").toLowerCase() === "admin";
 
 export default function UsuariosPage() {
   const { user: currentUser } = useAuth();
   const toast = useToast();
   const [toDelete, setToDelete] = useState(null);
   const [deleting, setDeleting] = useState(false);
+  const [toggling, setToggling] = useState(null);
 
   const loadUsers = useCallback(() => userService.getAll(), []);
   const { data, loading, error, reload, setData } = useAsync(loadUsers);
 
   const users = data || [];
+
+  async function handleToggleStatus(item) {
+    const status = isInactive(item) ? "ativo" : "inativo";
+    setToggling(item.id);
+
+    try {
+      await userService.update(item.id, { status });
+      setData((prev) =>
+        prev.map((u) => (u.id === item.id ? { ...u, status } : u))
+      );
+      toast.success(
+        status === "ativo"
+          ? `${item.name} foi reativado(a).`
+          : `${item.name} foi desativado(a).`
+      );
+    } catch (err) {
+      toast.error(err.message);
+    } finally {
+      setToggling(null);
+    }
+  }
 
   async function handleDelete() {
     setDeleting(true);
@@ -81,13 +107,14 @@ export default function UsuariosPage() {
         ) : (
           <div className="overflow-x-auto">
 
-            <table className="w-full min-w-[720px]">
+            <table className="w-full min-w-[860px]">
 
               <thead className="bg-slate-50">
                 <tr className="text-left text-xs font-semibold uppercase tracking-wide text-slate-400">
                   <th className="px-7 py-4">Usuário</th>
                   <th className="px-7 py-4">Cargo</th>
-                  <th className="px-7 py-4">CPF</th>
+                  <th className="px-7 py-4">Acesso</th>
+                  <th className="px-7 py-4">Situação</th>
                   <th className="px-7 py-4">Telefone</th>
                   <th className="px-7 py-4 text-right">Ação</th>
                 </tr>
@@ -96,7 +123,7 @@ export default function UsuariosPage() {
               <tbody className="divide-y divide-slate-100">
 
                 {loading ? (
-                  <SkeletonRows columns={5} />
+                  <SkeletonRows columns={6} />
                 ) : (
                   users.map((item, index) => {
                     const isMe = item.id === currentUser?.id;
@@ -104,7 +131,9 @@ export default function UsuariosPage() {
                     return (
                       <tr
                         key={item.id}
-                        className="animate-fade-in transition-colors hover:bg-slate-50"
+                        className={`animate-fade-in transition-colors hover:bg-slate-50 ${
+                          isInactive(item) ? "opacity-60" : ""
+                        }`}
                         style={{ "--i": index }}
                       >
                         <td className="px-7 py-4">
@@ -132,8 +161,20 @@ export default function UsuariosPage() {
                           {item.position || "—"}
                         </td>
 
-                        <td className="px-7 py-4 text-sm text-slate-500">
-                          {formatCPF(item.cpf)}
+                        <td className="px-7 py-4">
+                          {isAdmin(item) ? (
+                            <Badge className="bg-purple-50 text-purple-600">Administrador</Badge>
+                          ) : (
+                            <Badge>Comum</Badge>
+                          )}
+                        </td>
+
+                        <td className="px-7 py-4">
+                          {isInactive(item) ? (
+                            <Badge className="bg-red-50 text-red-500">Inativo</Badge>
+                          ) : (
+                            <Badge className="bg-green-50 text-green-600">Ativo</Badge>
+                          )}
                         </td>
 
                         <td className="px-7 py-4 text-sm text-slate-500">
@@ -148,6 +189,16 @@ export default function UsuariosPage() {
                             >
                               Editar
                             </Link>
+
+                            {!isMe && (
+                              <button
+                                onClick={() => handleToggleStatus(item)}
+                                disabled={toggling === item.id}
+                                className="text-sm font-semibold text-slate-500 transition hover:text-slate-700 disabled:opacity-50"
+                              >
+                                {isInactive(item) ? "Ativar" : "Desativar"}
+                              </button>
+                            )}
 
                             {!isMe && (
                               <button

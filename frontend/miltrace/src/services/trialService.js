@@ -36,6 +36,16 @@ export const trialService = {
     return data;
   },
 
+  // status: "aprovada" | "recusada" | "pendente"
+  async evaluate(id, { status, rejectionReason, evaluatedBy }) {
+    const { data } = await request(`/evaluateTrial/${id}`, {
+      method: "PUT",
+      body: { status, rejectionReason, evaluatedBy },
+    });
+
+    return data;
+  },
+
   async remove(id) {
     const { data } = await request(`/deleteTrial/${id}`, {
       method: "DELETE",

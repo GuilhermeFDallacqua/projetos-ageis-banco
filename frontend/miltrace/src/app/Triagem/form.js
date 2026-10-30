@@ -53,8 +53,11 @@ export const initialForm = {
 };
 
 export const ZONAS = [
-  { value: "URBANA", label: "Urbana" },
-  { value: "RURAL", label: "Rural" },
+  { value: "norte", label: "Norte" },
+  { value: "sul", label: "Sul" },
+  { value: "leste", label: "Leste" },
+  { value: "oeste", label: "Oeste" },
+  { value: "centro", label: "Centro" },
 ];
 
 export const TIPOS_PARTO = [
@@ -175,7 +178,7 @@ export function donorToForm(row) {
     susNumber: maskSUS(row.sus_number || ""),
     birthDate: dateOnly(row.birth_date),
     telephoneNumber: maskPhone(row.telephone_number || ""),
-    zone: row.zone || "",
+    zone: row.zone ? row.zone.toLowerCase() : "",
     address: row.address || "",
   };
 }

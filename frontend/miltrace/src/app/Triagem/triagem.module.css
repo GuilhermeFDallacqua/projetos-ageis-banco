@@ -1,6 +1,7 @@
 .container {
   min-height: 100vh;
   display: flex;
+  flex-direction: column;
   background: #f0f4fa;
   color: #1f3657;
   font-family: Arial, Helvetica, sans-serif;
@@ -8,7 +9,7 @@
 
 .main {
   flex: 1;
-  margin-left: 256px;
+  margin-left: 0;
   padding: 32px 35px 30px;
   min-width: 0;
   box-sizing: border-box;
@@ -38,6 +39,41 @@
   padding: 5px 9px;
   font-size: 11px;
   font-weight: 700;
+}
+
+.badges {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+}
+
+.badgeMuted,
+.badgeSuccess {
+  display: inline-flex;
+  border-radius: 6px;
+  padding: 5px 9px;
+  font-size: 11px;
+  font-weight: 700;
+}
+
+.badgeMuted {
+  background: #e8eef4;
+  color: #4d6680;
+}
+
+.badgeSuccess {
+  background: #e6f7f5;
+  color: #1a9384;
+}
+
+.loadingBox {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 10px;
+  min-height: 300px;
+  color: #71869c;
+  font-size: 13px;
 }
 
 .helpButton {
@@ -314,6 +350,28 @@
   border-color: #3193c4;
 }
 
+.errorText {
+  display: block;
+  margin-top: 6px;
+  color: #d1544f;
+  font-size: 11px;
+  animation: slideDown 0.25s ease-out;
+}
+
+.fieldInvalid input,
+.fieldInvalid .selectWrapper select {
+  border-color: #e3a19e;
+}
+
+.fieldInvalid input:focus {
+  border-color: #d1544f;
+  box-shadow: 0 0 0 2px rgba(209, 84, 79, 0.1);
+}
+
+.field .errorText {
+  margin-top: -2px;
+}
+
 .questionWithExtra {
   display: flex;
   flex-direction: column;
@@ -447,6 +505,7 @@
   background: #2788b8;
   border: 1px solid #2788b8;
   color: white;
+  text-decoration: none;
   display: flex;
   align-items: center;
   gap: 8px;
@@ -645,6 +704,13 @@
   }
 }
 
+/* Espaço do menu lateral fixo (mesmo breakpoint "lg" do Tailwind) */
+@media (min-width: 1024px) {
+  .main {
+    margin-left: 256px;
+  }
+}
+
 @media (max-width: 1100px) {
   .main {
     padding: 28px 24px;
@@ -686,7 +752,6 @@
 
 @media (max-width: 680px) {
   .main {
-    margin-left: 256px;
     padding: 22px 14px;
   }
 
@@ -700,9 +765,17 @@
   }
 
   .steps {
-    overflow-x: auto;
-    justify-content: flex-start;
+    justify-content: center;
     padding-bottom: 8px;
+  }
+
+  /* No celular só os números das etapas; o título aparece no card */
+  .step {
+    width: auto;
+  }
+
+  .step span {
+    display: none;
   }
 
   .questionWithExtra {
@@ -732,7 +805,6 @@
 
 @media (max-width: 450px) {
   .main {
-    margin-left: 256px;
     padding: 18px 12px;
   }
 

@@ -1,5 +1,26 @@
 import { supabase } from "../config/supabase.js";
 
+// Campos das etapas 3 a 5 (camelCase -> coluna).
+// Dependem da migration database/migrations/001_triagem_campos_extras.sql
+const EXTRA_FIELDS = {
+  deliveryDate: "delivery_date",
+  gestationalWeeks: "gestational_weeks",
+  deliveryType: "delivery_type",
+  hadPrenatal: "had_prenatal",
+  collectionPlace: "collection_place",
+  hasFreezer: "has_freezer",
+  hasGlassJars: "has_glass_jars",
+  receivedHygieneGuidance: "received_hygiene_guidance",
+  hivResult: "hiv_result",
+  syphilisResult: "syphilis_result",
+  hepatitisBResult: "hepatitis_b_result",
+  hepatitisCResult: "hepatitis_c_result",
+  htlvResult: "htlv_result",
+};
+
+const withoutUndefined = (row) =>
+  Object.fromEntries(Object.entries(row).filter(([, value]) => value !== undefined));
+
 // Converte o payload do front (camelCase) para as colunas da tabela "trials".
 // Só inclui as chaves enviadas, para que o update seja parcial.
 function toTrialRow(trialData) {
@@ -22,7 +43,7 @@ function toTrialRow(trialData) {
     telephoneNumber,
   } = trialData;
 
-  const row = {
+  return withoutUndefined({
     full_name: fullName,
     cpf: CPF !== undefined ? (CPF ? CPF.replace(/\D/g, "") : null) : undefined,
     sus_number: susNumber,
@@ -43,32 +64,54 @@ function toTrialRow(trialData) {
       telephoneNumber !== undefined
         ? (telephoneNumber ? telephoneNumber.replace(/\D/g, "") : null)
         : undefined,
-  };
+  });
+}
 
-  return Object.fromEntries(
-    Object.entries(row).filter(([, value]) => value !== undefined)
+function toExtraRow(trialData) {
+  return withoutUndefined(
+    Object.fromEntries(
+      Object.entries(EXTRA_FIELDS).map(([key, column]) => [
+        column,
+        trialData[key] === "" ? null : trialData[key],
+      ])
+    )
   );
+}
+
+// Erro do PostgREST quando a coluna ainda não existe (migration não aplicada)
+const isMissingColumn = (error) =>
+  error?.code === "PGRST204" || /column/i.test(error?.message || "");
+
+// Salva com os campos extras; se as colunas ainda não existirem, salva sem eles
+async function saveWithFallback(query, trialData) {
+  const base = toTrialRow(trialData);
+  const extras = toExtraRow(trialData);
+
+  let { data, error } = await query({ ...base, ...extras });
+
+  if (error && Object.keys(extras).length && isMissingColumn(error)) {
+    ({ data, error } = await query(base));
+  }
+
+  if (error) {
+    throw new Error(error.message);
+  }
+
+  return data[0];
 }
 
 export const trialService = {
   async createTrial(trialData) {
-    const { data, error } = await supabase
-      .from("trials")
-      .insert([toTrialRow(trialData)])
-      .select();
-
-    if (error) {
-      throw new Error(error.message);
-    }
-
-    return data[0];
+    return saveWithFallback(
+      (row) => supabase.from("trials").insert([row]).select(),
+      trialData
+    );
   },
 
   async getAllTrials() {
     const { data, error } = await supabase
       .from("trials")
-      .select("*")
-      .order("created_at", { ascending: false });
+      .select("*");
 
     if (error) {
       throw new Error(error.message);
@@ -92,17 +135,10 @@ export const trialService = {
   },
 
   async updateTrial(id, trialData) {
-    const { data, error } = await supabase
-      .from("trials")
-      .update(toTrialRow(trialData))
-      .eq("id", id)
-      .select();
-
-    if (error) {
-      throw new Error(error.message);
-    }
-
-    return data[0];
+    return saveWithFallback(
+      (row) => supabase.from("trials").update(row).eq("id", id).select(),
+      trialData
+    );
   },
 
   async deleteTrial(id) {

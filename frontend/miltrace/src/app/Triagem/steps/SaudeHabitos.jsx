@@ -3,10 +3,11 @@ import {
   Question,
   YesNo,
   MonthYearSelect,
+  ErrorText,
 } from "../fields";
 import styles from "../triagem.module.css";
 
-export default function SaudeHabitos({ form, update }) {
+export default function SaudeHabitos({ form, update, errors }) {
   return (
     <StepCard
       title="Saúde e Hábitos"
@@ -30,6 +31,7 @@ export default function SaudeHabitos({ form, update }) {
               year={form.transfusionYear}
               onMonthChange={(value) => update("transfusionMonth", value)}
               onYearChange={(value) => update("transfusionYear", value)}
+              error={errors.transfusion}
             />
           )}
 
@@ -54,6 +56,7 @@ export default function SaudeHabitos({ form, update }) {
               year={form.tattooYear}
               onMonthChange={(value) => update("tattooMonth", value)}
               onYearChange={(value) => update("tattooYear", value)}
+              error={errors.tattoo}
             />
           )}
 
@@ -92,7 +95,11 @@ export default function SaudeHabitos({ form, update }) {
           />
 
           {form.takesMedication && (
-            <div className={styles.extraBox}>
+            <div
+              className={`${styles.extraBox} ${
+                errors.usesMedication ? styles.fieldInvalid : ""
+              }`}
+            >
 
               <label>
                 Qual medicamento?
@@ -106,6 +113,8 @@ export default function SaudeHabitos({ form, update }) {
                 }
                 placeholder="Digite o medicamento"
               />
+
+              <ErrorText>{errors.usesMedication}</ErrorText>
 
             </div>
           )}

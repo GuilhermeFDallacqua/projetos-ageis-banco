@@ -1,8 +1,8 @@
-import { supabase } from "../config/supabase.js";
+import { supabase, createAuthClient } from "../config/supabase.js";
 
 export const userService = {
     async createUser(name, password, email, position, telephoneNumber, CPF, dateBirth) {
-        const { data: authData, error: authError } = await supabase.auth.signUp({
+        const { data: authData, error: authError } = await createAuthClient().auth.signUp({
             email: email,
             password: password,
             options: {
@@ -42,7 +42,7 @@ export const userService = {
     async loginUser(email, password) {
         const cleanEmail = email ? email.trim().toLowerCase() : '';
 
-        const { data, error } = await supabase.auth.signInWithPassword({
+        const { data, error } = await createAuthClient().auth.signInWithPassword({
             email: cleanEmail,
             password: password
         });

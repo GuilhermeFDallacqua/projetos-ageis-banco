@@ -18,7 +18,7 @@ export const MESES = [
 ];
 
 const ANO_ATUAL = new Date().getFullYear();
-export const ANOS = Array.from({ length: 8 }, (_, i) => String(ANO_ATUAL - i));
+export const ANOS = Array.from({ length: 30 }, (_, i) => String(ANO_ATUAL - i));
 
 export function StepCard({ title, description, children }) {
   return (
@@ -102,6 +102,12 @@ export function YesNo({ value, onChange }) {
   );
 }
 
+export function ErrorText({ children }) {
+  if (!children) return null;
+
+  return <span className={styles.errorText}>{children}</span>;
+}
+
 export function TextField({
   label,
   required,
@@ -110,9 +116,15 @@ export function TextField({
   onChange,
   placeholder,
   full,
+  error,
+  ...inputProps
 }) {
   return (
-    <div className={`${styles.field} ${full ? styles.fieldFull : ""}`}>
+    <div
+      className={`${styles.field} ${full ? styles.fieldFull : ""} ${
+        error ? styles.fieldInvalid : ""
+      }`}
+    >
       <label>
         {label}
         {required && <span className={styles.required}> *</span>}
@@ -123,7 +135,11 @@ export function TextField({
         value={value}
         onChange={(e) => onChange(e.target.value)}
         placeholder={placeholder}
+        aria-invalid={!!error}
+        {...inputProps}
       />
+
+      <ErrorText>{error}</ErrorText>
     </div>
   );
 }
@@ -155,9 +171,10 @@ export function MonthYearSelect({
   year,
   onMonthChange,
   onYearChange,
+  error,
 }) {
   return (
-    <div className={styles.extraBox}>
+    <div className={`${styles.extraBox} ${error ? styles.fieldInvalid : ""}`}>
 
       <label>{label}</label>
 
@@ -178,6 +195,8 @@ export function MonthYearSelect({
         />
 
       </div>
+
+      <ErrorText>{error}</ErrorText>
     </div>
   );
 }

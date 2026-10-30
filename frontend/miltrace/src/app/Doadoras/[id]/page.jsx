@@ -1,61 +1,183 @@
 "use client";
 
+import { useCallback, useState } from "react";
 import Link from "next/link";
 import { useParams, useRouter } from "next/navigation";
-import Sidebar from "@/components/Sidebar/sidebar";
 import {
-  mockTriagens,
+  ArrowLeft,
+  Pencil,
+  ClipboardPlus,
+  Trash2,
+  AlertTriangle,
+  CheckCircle2,
+} from "lucide-react";
+
+import PageLayout from "@/components/PageLayout/pageLayout";
+import ConfirmDialog from "@/components/ConfirmDialog/confirmDialog";
+import { SkeletonBlock, ErrorState } from "@/components/States/states";
+import { useAsync } from "@/hooks/useAsync";
+import { useToast } from "@/contexts/ToastContext";
+import { trialService } from "@/services/trialService";
+import {
   formatCPF,
   formatPhone,
+  formatSUS,
   formatDate,
-} from "@/data/mockTriagens";
+  formatMonthYear,
+  formatZone,
+  formatTrialCode,
+  getInitials,
+  getAge,
+  sortByNewest,
+} from "@/utils/format";
+import {
+  TIPOS_PARTO,
+  LOCAIS_COLETA,
+  RESULTADOS_EXAME,
+} from "@/app/Triagem/form";
 
 const simNao = (value) => (value ? "Sim" : "Não");
+
+const simNaoOuVazio = (value) =>
+  value === null || value === undefined ? "—" : simNao(value);
+
+const labelDe = (lista, value) =>
+  lista.find((item) => item.value === value)?.label || "—";
+
+const EXAMES = [
+  ["hiv_result", "HIV"],
+  ["syphilis_result", "Sífilis (VDRL)"],
+  ["hepatitis_b_result", "Hepatite B"],
+  ["hepatitis_c_result", "Hepatite C"],
+  ["htlv_result", "HTLV"],
+];
+
+// Considera "recente" o que ocorreu nos últimos 12 meses
+function isRecent(date) {
+  if (!date) return false;
+
+  const limit = new Date();
+  limit.setFullYear(limit.getFullYear() - 1);
+
+  return new Date(date) >= limit;
+}
+
+// Pontos que merecem atenção da equipe na triagem
+function getAttentionPoints(trial) {
+  const points = [];
+
+  if (trial.smoker) points.push("Doadora fumante");
+  if (trial.alcohol_consumer) points.push("Consome bebida alcoólica");
+  if (trial.uses_medication) points.push(`Usa medicamento: ${trial.uses_medication}`);
+  if (trial.has_blood_transfusion && isRecent(trial.transfusion_date)) {
+    points.push("Transfusão de sangue nos últimos 12 meses");
+  }
+  if (trial.has_tattoo && isRecent(trial.tattoo_date)) {
+    points.push("Tatuagem nos últimos 12 meses");
+  }
+
+  for (const [field, label] of EXAMES) {
+    if (trial[field] === "POSITIVO") points.push(`Sorologia positiva: ${label}`);
+  }
+
+  return points;
+}
 
 export default function DoadoraPage() {
   const { id } = useParams();
   const router = useRouter();
+  const toast = useToast();
+  const [confirmOpen, setConfirmOpen] = useState(false);
+  const [deleting, setDeleting] = useState(false);
 
-  // Conectar: carregar com trialService.getById(id)
-  const doadora = mockTriagens.find((item) => item.id === id);
+  // Carrega a triagem e as demais triagens da mesma doadora (mesmo CPF)
+  const loadData = useCallback(async () => {
+    const [trial, all] = await Promise.all([
+      trialService.getById(id),
+      trialService.getAll(),
+    ]);
 
-  function handleDelete() {
-    if (!window.confirm("Deseja realmente excluir esta doadora?")) return;
-
-    // Conectar: await trialService.remove(id)
-    router.push("/Doadoras");
-  }
-
-  if (!doadora) {
-    return (
-      <div className="min-h-screen bg-slate-50">
-        <Sidebar />
-
-        <main className="ml-64 min-h-screen px-10 py-9">
-          <p className="text-slate-500">Doadora não encontrada.</p>
-
-          <Link
-            href="/Doadoras"
-            className="mt-4 inline-block text-sm font-semibold text-blue-500 hover:text-blue-700"
-          >
-            ← Voltar para doadoras
-          </Link>
-        </main>
-      </div>
+    const history = sortByNewest(
+      all.filter((item) => trial.cpf && item.cpf === trial.cpf)
     );
+
+    return { trial, history: history.length ? history : [trial] };
+  }, [id]);
+
+  const { data, loading, error, reload } = useAsync(loadData);
+
+  async function handleDelete() {
+    setDeleting(true);
+
+    try {
+      await trialService.remove(id);
+      toast.success("Triagem excluída.");
+      router.push("/Doadoras");
+    } catch (err) {
+      toast.error(err.message);
+      setDeleting(false);
+    }
   }
+
+  return (
+    <PageLayout>
+
+      <Link
+        href="/Doadoras"
+        className="inline-flex items-center gap-2 text-sm font-semibold text-blue-500 transition hover:gap-3 hover:text-blue-700"
+      >
+        <ArrowLeft size={16} />
+        Voltar para doadoras
+      </Link>
+
+      {error ? (
+        <div className="mt-6 rounded-2xl border border-slate-200 bg-white shadow-sm">
+          <ErrorState message={error} onRetry={reload} />
+        </div>
+      ) : loading ? (
+        <DetailSkeleton />
+      ) : (
+        <Detail
+          trial={data.trial}
+          history={data.history}
+          onDelete={() => setConfirmOpen(true)}
+        />
+      )}
+
+      <ConfirmDialog
+        open={confirmOpen}
+        title="Excluir triagem?"
+        message={
+          data &&
+          `A triagem ${formatTrialCode(data.trial.id)} de ${data.trial.full_name} será excluída. Essa ação não pode ser desfeita.`
+        }
+        loading={deleting}
+        onConfirm={handleDelete}
+        onCancel={() => setConfirmOpen(false)}
+      />
+
+    </PageLayout>
+  );
+}
+
+function Detail({ trial, history, onDelete }) {
+  const age = getAge(trial.birth_date);
+  const attention = getAttentionPoints(trial);
 
   const sections = [
     {
       title: "Identificação",
       items: [
-        ["Nome completo", doadora.full_name],
-        ["CPF", formatCPF(doadora.cpf)],
-        ["Cartão SUS", doadora.sus_number || "—"],
-        ["Data de nascimento", formatDate(doadora.birth_date)],
-        ["Telefone", formatPhone(doadora.telephone_number)],
-        ["Zona", doadora.zone || "—"],
-        ["Endereço", doadora.address || "—"],
+        ["Nome completo", trial.full_name],
+        ["CPF", formatCPF(trial.cpf)],
+        ["Cartão SUS", formatSUS(trial.sus_number)],
+        [
+          "Data de nascimento",
+          age !== null ? `${formatDate(trial.birth_date)} (${age} anos)` : "—",
+        ],
+        ["Telefone", formatPhone(trial.telephone_number)],
+        ["Zona", formatZone(trial.zone)],
+        ["Endereço", trial.address || "—"],
       ],
     },
     {
@@ -63,113 +185,253 @@ export default function DoadoraPage() {
       items: [
         [
           "Transfusão de sangue",
-          doadora.has_blood_transfusion
-            ? `Sim (${formatDate(doadora.transfusion_date)})`
+          trial.has_blood_transfusion
+            ? `Sim (${formatMonthYear(trial.transfusion_date)})`
             : "Não",
         ],
         [
           "Tatuagem",
-          doadora.has_tattoo
-            ? `Sim (${formatDate(doadora.tattoo_date)})`
+          trial.has_tattoo
+            ? `Sim (${formatMonthYear(trial.tattoo_date)})`
             : "Não",
         ],
-        ["Fumante", simNao(doadora.smoker)],
-        ["Bebida alcoólica", simNao(doadora.alcohol_consumer)],
-        ["Medicamento", doadora.uses_medication || "Não"],
+        ["Fumante", simNao(trial.smoker)],
+        ["Bebida alcoólica", simNao(trial.alcohol_consumer)],
+        ["Medicamento", trial.uses_medication || "Não"],
       ],
     },
     {
       title: "Vacinação",
       items: [
-        ["Febre amarela", simNao(doadora.has_yellow_fever_vaccine)],
-        ["dTpa", simNao(doadora.has_dtpa_vaccine)],
+        ["Febre amarela", simNao(trial.has_yellow_fever_vaccine)],
+        ["dTpa", simNao(trial.has_dtpa_vaccine)],
       ],
     },
   ];
 
+  // Etapas 3 a 5: exibidas quando as colunas existem no banco
+  if ("delivery_date" in trial) {
+    sections.push(
+      {
+        title: "Gestação e bebê",
+        items: [
+          ["Data do parto", formatDate(trial.delivery_date)],
+          [
+            "Idade gestacional",
+            trial.gestational_weeks ? `${trial.gestational_weeks} semanas` : "—",
+          ],
+          ["Tipo de parto", labelDe(TIPOS_PARTO, trial.delivery_type)],
+          ["Pré-natal", simNaoOuVazio(trial.had_prenatal)],
+        ],
+      },
+      {
+        title: "Coleta e armazenamento",
+        items: [
+          ["Local da coleta", labelDe(LOCAIS_COLETA, trial.collection_place)],
+          ["Freezer", simNaoOuVazio(trial.has_freezer)],
+          ["Frascos de vidro", simNaoOuVazio(trial.has_glass_jars)],
+          ["Orientação de higiene", simNaoOuVazio(trial.received_hygiene_guidance)],
+        ],
+      },
+      {
+        title: "Sorologia",
+        items: EXAMES.map(([field, label]) => [
+          label,
+          labelDe(RESULTADOS_EXAME, trial[field]),
+        ]),
+      }
+    );
+  }
+
   return (
-    <div className="min-h-screen bg-slate-50">
-
-      <Sidebar />
-
-      {/* Conteúdo principal */}
-      <main className="ml-64 min-h-screen px-10 py-9">
-
-        <div className="mx-auto max-w-7xl">
-
-          <Link
-            href="/Doadoras"
-            className="text-sm font-semibold text-blue-500 transition hover:text-blue-700"
-          >
-            ← Voltar para doadoras
-          </Link>
-
-          {/* Cabeçalho */}
-          <section className="mb-9 mt-4 flex flex-wrap items-end justify-between gap-4 animate-fade-up">
-            <div>
-              <h1 className="text-3xl font-bold text-slate-800">
-                {doadora.full_name}
-              </h1>
-
-              <p className="mt-2 text-slate-500">
-                {doadora.id} · Triagem em {formatDate(doadora.created_at)}
-              </p>
-            </div>
-
-            <div className="flex gap-3">
-              <button
-                onClick={handleDelete}
-                className="rounded-lg border border-red-300 px-5 py-3 text-sm font-semibold text-red-500 transition duration-200 hover:-translate-y-0.5 hover:bg-red-50 active:translate-y-0 active:scale-[0.98]"
-              >
-                Excluir
-              </button>
-
-              <Link
-                href="/Triagem"
-                className="rounded-lg bg-blue-500 px-5 py-3 text-sm font-semibold text-white shadow-sm transition duration-200 hover:-translate-y-0.5 hover:bg-blue-600 hover:shadow-md active:translate-y-0 active:scale-[0.98]"
-              >
-                Nova triagem
-              </Link>
-            </div>
-          </section>
-
-
-          <div className="space-y-6">
-            {sections.map((section, index) => (
-
-              <section
-                key={section.title}
-                className="animate-fade-up rounded-2xl border border-slate-200 bg-white shadow-sm"
-                style={{ "--i": index + 1 }}
-              >
-                <div className="border-b border-slate-200 px-7 py-5">
-                  <h2 className="text-lg font-semibold text-slate-800">
-                    {section.title}
-                  </h2>
-                </div>
-
-                <dl className="grid grid-cols-1 gap-6 px-7 py-6 sm:grid-cols-2 lg:grid-cols-3">
-                  {section.items.map(([label, value]) => (
-                    <div key={label}>
-                      <dt className="text-xs font-semibold uppercase tracking-wide text-slate-400">
-                        {label}
-                      </dt>
-
-                      <dd className="mt-1 text-sm font-medium text-slate-700">
-                        {value}
-                      </dd>
-                    </div>
-                  ))}
-                </dl>
-              </section>
-
-            ))}
+    <>
+      {/* Cabeçalho */}
+      <section className="animate-fade-up mb-8 mt-5 flex flex-wrap items-center justify-between gap-5">
+        <div className="flex items-center gap-4">
+          <div className="flex h-14 w-14 shrink-0 items-center justify-center rounded-2xl bg-blue-100 text-lg font-bold text-blue-600">
+            {getInitials(trial.full_name)}
           </div>
 
+          <div>
+            <h1 className="text-2xl font-bold text-slate-800 sm:text-3xl">
+              {trial.full_name}
+            </h1>
+
+            <p className="mt-1 text-slate-500">
+              {formatTrialCode(trial.id)}
+              {trial.created_at && ` · Triagem em ${formatDate(trial.created_at)}`}
+            </p>
+          </div>
         </div>
 
-      </main>
+        <div className="flex flex-wrap gap-3">
+          <button
+            onClick={onDelete}
+            className="flex items-center gap-2 rounded-lg border border-red-200 px-4 py-2.5 text-sm font-semibold text-red-500 transition duration-200 hover:-translate-y-0.5 hover:bg-red-50 active:translate-y-0 active:scale-[0.98]"
+          >
+            <Trash2 size={16} />
+            Excluir
+          </button>
 
+          <Link
+            href={`/Triagem?editar=${trial.id}`}
+            className="flex items-center gap-2 rounded-lg border border-blue-500 px-4 py-2.5 text-sm font-semibold text-blue-500 transition duration-200 hover:-translate-y-0.5 hover:bg-blue-50 active:translate-y-0 active:scale-[0.98]"
+          >
+            <Pencil size={16} />
+            Editar
+          </Link>
+
+          <Link
+            href={`/Triagem?doadora=${trial.id}`}
+            className="flex items-center gap-2 rounded-lg bg-blue-500 px-4 py-2.5 text-sm font-semibold text-white shadow-sm transition duration-200 hover:-translate-y-0.5 hover:bg-blue-600 hover:shadow-md active:translate-y-0 active:scale-[0.98]"
+          >
+            <ClipboardPlus size={16} />
+            Nova triagem
+          </Link>
+        </div>
+      </section>
+
+
+      {/* Pontos de atenção */}
+      <section
+        className={`animate-fade-up mb-6 flex items-start gap-4 rounded-2xl border p-6 ${
+          attention.length
+            ? "border-orange-200 bg-orange-50"
+            : "border-green-200 bg-green-50"
+        }`}
+        style={{ "--i": 1 }}
+      >
+        {attention.length ? (
+          <AlertTriangle size={22} className="mt-0.5 shrink-0 text-orange-500" />
+        ) : (
+          <CheckCircle2 size={22} className="mt-0.5 shrink-0 text-green-500" />
+        )}
+
+        <div>
+          <p className={`font-semibold ${attention.length ? "text-orange-700" : "text-green-700"}`}>
+            {attention.length
+              ? "Pontos de atenção na triagem"
+              : "Nenhum ponto de atenção identificado"}
+          </p>
+
+          {attention.length > 0 && (
+            <ul className="mt-2 list-inside list-disc space-y-1 text-sm text-orange-700">
+              {attention.map((point) => (
+                <li key={point}>{point}</li>
+              ))}
+            </ul>
+          )}
+        </div>
+      </section>
+
+
+      <div className="grid grid-cols-1 gap-6 xl:grid-cols-3">
+
+        <div className="space-y-6 xl:col-span-2">
+          {sections.map((section, index) => (
+
+            <section
+              key={section.title}
+              className="animate-fade-up rounded-2xl border border-slate-200 bg-white shadow-sm"
+              style={{ "--i": index + 2 }}
+            >
+              <div className="border-b border-slate-200 px-7 py-5">
+                <h2 className="text-lg font-semibold text-slate-800">
+                  {section.title}
+                </h2>
+              </div>
+
+              <dl className="grid grid-cols-1 gap-6 px-7 py-6 sm:grid-cols-2">
+                {section.items.map(([label, value]) => (
+                  <div key={label}>
+                    <dt className="text-xs font-semibold uppercase tracking-wide text-slate-400">
+                      {label}
+                    </dt>
+
+                    <dd className="mt-1 break-words text-sm font-medium text-slate-700">
+                      {value}
+                    </dd>
+                  </div>
+                ))}
+              </dl>
+            </section>
+
+          ))}
+        </div>
+
+
+        {/* Histórico da doadora */}
+        <section
+          className="animate-fade-up h-fit rounded-2xl border border-slate-200 bg-white shadow-sm"
+          style={{ "--i": 3 }}
+        >
+          <div className="border-b border-slate-200 px-7 py-5">
+            <h2 className="text-lg font-semibold text-slate-800">
+              Triagens da doadora
+            </h2>
+
+            <p className="mt-1 text-sm text-slate-400">
+              {history.length} triagem(ns) registrada(s)
+            </p>
+          </div>
+
+          <ol className="relative px-7 py-6">
+            {history.map((item, index) => {
+              const current = String(item.id) === String(trial.id);
+
+              return (
+                <li key={item.id} className="relative flex gap-4 pb-6 last:pb-0">
+                  {index < history.length - 1 && (
+                    <span className="absolute left-[7px] top-5 h-full w-0.5 bg-slate-100" />
+                  )}
+
+                  <span
+                    className={`relative mt-1 h-4 w-4 shrink-0 rounded-full border-2 ${
+                      current
+                        ? "border-blue-500 bg-blue-500"
+                        : "border-slate-300 bg-white"
+                    }`}
+                  />
+
+                  {current ? (
+                    <div>
+                      <p className="text-sm font-semibold text-blue-600">
+                        {formatTrialCode(item.id)} (atual)
+                      </p>
+                      <p className="text-xs text-slate-400">{formatDate(item.created_at)}</p>
+                    </div>
+                  ) : (
+                    <Link href={`/Doadoras/${item.id}`} className="group">
+                      <p className="text-sm font-semibold text-slate-700 transition group-hover:text-blue-600">
+                        {formatTrialCode(item.id)}
+                      </p>
+                      <p className="text-xs text-slate-400">{formatDate(item.created_at)}</p>
+                    </Link>
+                  )}
+                </li>
+              );
+            })}
+          </ol>
+        </section>
+
+      </div>
+    </>
+  );
+}
+
+function DetailSkeleton() {
+  return (
+    <div className="mt-5 space-y-6">
+      <div className="flex items-center gap-4">
+        <SkeletonBlock className="h-14 w-14 rounded-2xl" />
+        <div className="space-y-2">
+          <SkeletonBlock className="h-7 w-64" />
+          <SkeletonBlock className="h-4 w-40" />
+        </div>
+      </div>
+
+      <SkeletonBlock className="h-20 w-full rounded-2xl" />
+      <SkeletonBlock className="h-64 w-full rounded-2xl" />
     </div>
   );
 }

@@ -8,7 +8,7 @@ import {
 import { TIPOS_PARTO } from "../form";
 import styles from "../triagem.module.css";
 
-export default function GestacaoBebe({ form, update }) {
+export default function GestacaoBebe({ form, update, errors }) {
   return (
     <StepCard
       title="Gestação e Bebê"
@@ -19,8 +19,10 @@ export default function GestacaoBebe({ form, update }) {
         <TextField
           label="Data do parto"
           type="date"
+          max={new Date().toISOString().slice(0, 10)}
           value={form.deliveryDate}
           onChange={(value) => update("deliveryDate", value)}
+          error={errors.deliveryDate}
         />
 
         <TextField
@@ -28,7 +30,10 @@ export default function GestacaoBebe({ form, update }) {
           type="number"
           value={form.gestationalWeeks}
           onChange={(value) => update("gestationalWeeks", value)}
+          min={20}
+          max={45}
           placeholder="Ex.: 39"
+          error={errors.gestationalWeeks}
         />
 
       </div>

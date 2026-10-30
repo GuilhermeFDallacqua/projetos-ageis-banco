@@ -1,201 +1,229 @@
 "use client";
 
-import { useState } from "react";
-import Link from "next/link";
-import Sidebar from "@/components/Sidebar/sidebar";
+import { useCallback, useState } from "react";
+import { Search, Download, ChevronLeft, ChevronRight } from "lucide-react";
+
+import PageLayout, { PageHeader } from "@/components/PageLayout/pageLayout";
+import TrialTable from "@/components/TrialTable/trialTable";
+import { SkeletonBlock } from "@/components/States/states";
+import { useAsync } from "@/hooks/useAsync";
+import { trialService } from "@/services/trialService";
 import {
-  mockTriagens,
+  sortByNewest,
+  onlyDigits,
   formatDate,
   formatTime,
-} from "@/data/mockTriagens";
+  formatCPF,
+  formatZone,
+  formatTrialCode,
+} from "@/utils/format";
 
-const filtros = ["Todas", "Concluída", "Em andamento"];
+const periodos = [
+  { value: "todas", label: "Todas", days: null },
+  { value: "hoje", label: "Hoje", days: 0 },
+  { value: "7", label: "7 dias", days: 7 },
+  { value: "30", label: "30 dias", days: 30 },
+];
+
+const POR_PAGINA = 10;
+
+function inPeriod(trial, days) {
+  if (days === null) return true;
+  if (!trial.created_at) return false;
+
+  const start = new Date();
+  start.setHours(0, 0, 0, 0);
+  start.setDate(start.getDate() - days);
+
+  return new Date(trial.created_at) >= start;
+}
+
+function exportCSV(trials) {
+  const header = ["Código", "Doadora", "CPF", "Data", "Horário", "Zona"];
+  const rows = trials.map((trial) => [
+    formatTrialCode(trial.id),
+    trial.full_name,
+    formatCPF(trial.cpf),
+    formatDate(trial.created_at),
+    formatTime(trial.created_at),
+    formatZone(trial.zone),
+  ]);
+
+  const csv = [header, ...rows]
+    .map((row) => row.map((cell) => `"${String(cell ?? "").replace(/"/g, '""')}"`).join(";"))
+    .join("\n");
+
+  // BOM para o Excel reconhecer acentos
+  const blob = new Blob(["﻿" + csv], { type: "text/csv;charset=utf-8" });
+  const url = URL.createObjectURL(blob);
+  const link = document.createElement("a");
+
+  link.href = url;
+  link.download = `triagens-${new Date().toISOString().slice(0, 10)}.csv`;
+  link.click();
+  URL.revokeObjectURL(url);
+}
 
 export default function HistoricoPage() {
-  // Conectar: carregar com trialService.getAll()
-  const [triagens] = useState(mockTriagens);
-  const [filtro, setFiltro] = useState("Todas");
+  const [periodo, setPeriodo] = useState("todas");
+  const [busca, setBusca] = useState("");
+  const [pagina, setPagina] = useState(1);
 
-  const filtradas = triagens.filter(
-    (triagem) => filtro === "Todas" || triagem.status === filtro
+  const loadTrials = useCallback(() => trialService.getAll(), []);
+  const { data, loading, error, reload } = useAsync(loadTrials);
+
+  const trials = sortByNewest(data || []);
+  const days = periodos.find((item) => item.value === periodo).days;
+  const termo = busca.trim().toLowerCase();
+  const termoNumerico = onlyDigits(termo);
+
+  const filtradas = trials.filter(
+    (trial) =>
+      inPeriod(trial, days) &&
+      (trial.full_name?.toLowerCase().includes(termo) ||
+        (termoNumerico && trial.cpf?.includes(termoNumerico)))
   );
 
+  const totalPaginas = Math.max(1, Math.ceil(filtradas.length / POR_PAGINA));
+  const paginaAtual = Math.min(pagina, totalPaginas);
+  const visiveis = filtradas.slice(
+    (paginaAtual - 1) * POR_PAGINA,
+    paginaAtual * POR_PAGINA
+  );
+
+  const resumo = [
+    { label: "Triagens no período", value: filtradas.length },
+    { label: "Zona urbana", value: filtradas.filter((t) => t.zone !== "RURAL").length },
+    { label: "Zona rural", value: filtradas.filter((t) => t.zone === "RURAL").length },
+  ];
+
+  function changePeriod(value) {
+    setPeriodo(value);
+    setPagina(1);
+  }
+
   return (
-    <div className="min-h-screen bg-slate-50">
+    <PageLayout>
 
-      <Sidebar />
-
-      {/* Conteúdo principal */}
-      <main className="ml-64 min-h-screen px-10 py-9">
-
-        <div className="mx-auto max-w-7xl">
-
-          {/* Cabeçalho */}
-          <section className="mb-9 animate-fade-up">
-            <h1 className="text-3xl font-bold text-slate-800">
-              Histórico
-            </h1>
-
-            <p className="mt-2 text-slate-500">
-              Todas as triagens realizadas no banco de leite.
-            </p>
-          </section>
+      <PageHeader
+        title="Histórico"
+        description="Todas as triagens realizadas no banco de leite."
+      >
+        <button
+          onClick={() => exportCSV(filtradas)}
+          disabled={loading || filtradas.length === 0}
+          className="flex items-center gap-2 rounded-lg border border-blue-500 px-5 py-3 text-sm font-semibold text-blue-500 transition duration-200 hover:-translate-y-0.5 hover:bg-blue-50 active:translate-y-0 active:scale-[0.98] disabled:pointer-events-none disabled:opacity-50"
+        >
+          <Download size={17} />
+          Exportar CSV
+        </button>
+      </PageHeader>
 
 
-          {/* Resumo */}
-          <section className="mb-10 grid grid-cols-1 gap-6 md:grid-cols-3">
-            {filtros.map((item) => {
-              const total =
-                item === "Todas"
-                  ? triagens.length
-                  : triagens.filter((t) => t.status === item).length;
-
-              return (
-                <div
-                  key={item}
-                  className="animate-fade-up rounded-2xl border border-slate-200 bg-white p-7 shadow-sm transition duration-300 hover:-translate-y-1 hover:shadow-md"
-                  style={{ "--i": filtros.indexOf(item) + 1 }}
-                >
-                  <p className="text-sm text-slate-500">
-                    {item === "Todas" ? "Total de triagens" : item}
-                  </p>
-
-                  <p className="mt-2 text-3xl font-bold text-slate-800">
-                    {total}
-                  </p>
-                </div>
-              );
-            })}
-          </section>
-
-
-          {/* Lista */}
-          <section
-            className="overflow-hidden rounded-2xl border border-slate-200 bg-white shadow-sm animate-fade-up"
-            style={{ "--i": 3 }}
+      {/* Resumo */}
+      <section className="mb-6 grid grid-cols-1 gap-6 sm:grid-cols-3">
+        {resumo.map((item, index) => (
+          <div
+            key={item.label}
+            className="animate-fade-up rounded-2xl border border-slate-200 bg-white p-6 shadow-sm"
+            style={{ "--i": index + 1 }}
           >
+            <p className="text-sm text-slate-500">{item.label}</p>
 
-            <div className="flex flex-wrap items-center justify-between gap-4 border-b border-slate-200 px-7 py-5">
-              <div>
-                <h2 className="text-lg font-semibold text-slate-800">
-                  Triagens
-                </h2>
-
-                <p className="mt-1 text-sm text-slate-400">
-                  Filtre pelo status da triagem.
-                </p>
-              </div>
-
-              <div className="flex gap-2">
-                {filtros.map((item) => (
-                  <button
-                    key={item}
-                    onClick={() => setFiltro(item)}
-                    className={`rounded-lg px-4 py-2 text-sm font-medium transition ${
-                      filtro === item
-                        ? "bg-blue-50 text-blue-600"
-                        : "text-slate-500 hover:bg-slate-50 hover:text-blue-600"
-                    }`}
-                  >
-                    {item}
-                  </button>
-                ))}
-              </div>
-            </div>
+            {loading ? (
+              <SkeletonBlock className="mt-2 h-8 w-12" />
+            ) : (
+              <p className="mt-2 text-3xl font-bold text-slate-800">
+                {error ? "—" : item.value}
+              </p>
+            )}
+          </div>
+        ))}
+      </section>
 
 
-            <div className="overflow-x-auto">
+      {/* Lista */}
+      <section
+        className="animate-fade-up overflow-hidden rounded-2xl border border-slate-200 bg-white shadow-sm"
+        style={{ "--i": 4 }}
+      >
 
-              <table className="w-full">
+        <div className="flex flex-wrap items-center justify-between gap-4 border-b border-slate-200 px-7 py-5">
 
-                <thead className="bg-slate-50">
+          <div className="flex flex-wrap gap-2">
+            {periodos.map((item) => (
+              <button
+                key={item.value}
+                onClick={() => changePeriod(item.value)}
+                className={`rounded-lg px-4 py-2 text-sm font-medium transition ${
+                  periodo === item.value
+                    ? "bg-blue-50 text-blue-600"
+                    : "text-slate-500 hover:bg-slate-50 hover:text-blue-600"
+                }`}
+              >
+                {item.label}
+              </button>
+            ))}
+          </div>
 
-                  <tr className="text-left text-xs font-semibold uppercase tracking-wide text-slate-400">
-                    <th className="px-7 py-4">ID da Doadora</th>
-                    <th className="px-7 py-4">Nome</th>
-                    <th className="px-7 py-4">Data</th>
-                    <th className="px-7 py-4">Horário</th>
-                    <th className="px-7 py-4">Status</th>
-                    <th className="px-7 py-4 text-right">Ação</th>
-                  </tr>
+          <div className="relative w-full sm:max-w-xs">
+            <Search
+              size={16}
+              className="pointer-events-none absolute left-3 top-1/2 -translate-y-1/2 text-slate-400"
+            />
 
-                </thead>
-
-
-                <tbody className="divide-y divide-slate-100">
-
-                  {filtradas.map((triagem, index) => (
-
-                    <tr
-                      key={triagem.id}
-                      className="animate-fade-in transition-colors hover:bg-slate-50"
-                      style={{ "--i": index }}
-                    >
-
-                      <td className="px-7 py-5 text-sm font-semibold text-slate-700">
-                        {triagem.id}
-                      </td>
-
-                      <td className="px-7 py-5 text-sm font-medium text-slate-600">
-                        {triagem.full_name}
-                      </td>
-
-                      <td className="px-7 py-5 text-sm text-slate-500">
-                        {formatDate(triagem.created_at)}
-                      </td>
-
-                      <td className="px-7 py-5 text-sm text-slate-500">
-                        {formatTime(triagem.created_at)}
-                      </td>
-
-                      <td className="px-7 py-5">
-                        <span
-                          className={`inline-flex rounded-full px-3 py-1 text-xs font-semibold ${
-                            triagem.status === "Concluída"
-                              ? "bg-green-50 text-green-600"
-                              : "bg-orange-50 text-orange-500"
-                          }`}
-                        >
-                          {triagem.status}
-                        </span>
-                      </td>
-
-                      <td className="px-7 py-5 text-right">
-                        <Link
-                          href={`/Doadoras/${triagem.id}`}
-                          className="text-sm font-semibold text-blue-500 transition hover:text-blue-700"
-                        >
-                          Visualizar
-                        </Link>
-                      </td>
-
-                    </tr>
-
-                  ))}
-
-                  {filtradas.length === 0 && (
-                    <tr>
-                      <td
-                        colSpan={6}
-                        className="px-7 py-10 text-center text-sm text-slate-400"
-                      >
-                        Nenhuma triagem encontrada.
-                      </td>
-                    </tr>
-                  )}
-
-                </tbody>
-
-              </table>
-
-            </div>
-
-          </section>
-
+            <input
+              type="search"
+              value={busca}
+              onChange={(e) => {
+                setBusca(e.target.value);
+                setPagina(1);
+              }}
+              placeholder="Buscar por nome ou CPF"
+              className="w-full rounded-lg border border-slate-200 py-2.5 pl-9 pr-3 text-sm text-slate-700 outline-none transition focus:border-blue-500 focus:ring-4 focus:ring-blue-50"
+            />
+          </div>
         </div>
 
-      </main>
+        <TrialTable
+          trials={visiveis}
+          loading={loading}
+          error={error}
+          onRetry={reload}
+          emptyTitle="Nenhuma triagem encontrada"
+          emptyDescription="Tente outro período ou termo de busca."
+        />
 
-    </div>
+        {!loading && !error && filtradas.length > POR_PAGINA && (
+          <div className="flex items-center justify-between border-t border-slate-200 px-7 py-4 text-sm text-slate-500">
+            <span>
+              Página {paginaAtual} de {totalPaginas}
+            </span>
+
+            <div className="flex gap-2">
+              <button
+                onClick={() => setPagina(paginaAtual - 1)}
+                disabled={paginaAtual === 1}
+                className="rounded-lg border border-slate-200 p-2 transition hover:bg-slate-50 disabled:opacity-40"
+                aria-label="Página anterior"
+              >
+                <ChevronLeft size={16} />
+              </button>
+
+              <button
+                onClick={() => setPagina(paginaAtual + 1)}
+                disabled={paginaAtual === totalPaginas}
+                className="rounded-lg border border-slate-200 p-2 transition hover:bg-slate-50 disabled:opacity-40"
+                aria-label="Próxima página"
+              >
+                <ChevronRight size={16} />
+              </button>
+            </div>
+          </div>
+        )}
+
+      </section>
+
+    </PageLayout>
   );
 }

@@ -1,6 +1,18 @@
+"use client";
+
 import Link from "next/link";
+import { usePathname } from "next/navigation";
+
+const menuItems = [
+  { href: "/", icon: "⌂", label: "Início" },
+  { href: "/Doadoras", icon: "♙", label: "Doadoras" },
+  { href: "/Triagem", icon: "▣", label: "Triagens" },
+  { href: "/Historico", icon: "◷", label: "Histórico" },
+];
 
 export default function Sidebar() {
+  const pathname = usePathname();
+
   return (
     <aside className="fixed left-0 top-0 flex h-screen w-64 flex-col border-r border-slate-200 bg-white">
 
@@ -26,31 +38,27 @@ export default function Sidebar() {
 
         <div className="space-y-2">
 
-          <Link
-            href="/"
-            className="flex w-full items-center gap-3 rounded-lg bg-blue-50 px-4 py-3 text-left font-medium text-blue-600"
-          >
-            <span>⌂</span>
-            Início
-          </Link>
+          {menuItems.map((item) => {
+            const active =
+              item.href === "/"
+                ? pathname === "/"
+                : pathname.startsWith(item.href);
 
-          <button className="flex w-full items-center gap-3 rounded-lg px-4 py-3 text-left text-slate-500 transition hover:bg-slate-50 hover:text-blue-600">
-            <span>♙</span>
-            Doadoras
-          </button>
-
-          <Link
-            href="/Triagem"
-            className="flex w-full items-center gap-3 rounded-lg px-4 py-3 text-left text-slate-500 transition hover:bg-slate-50 hover:text-blue-600"
-          >
-            <span>▣</span>
-            Triagens
-          </Link>
-
-          <button className="flex w-full items-center gap-3 rounded-lg px-4 py-3 text-left text-slate-500 transition hover:bg-slate-50 hover:text-blue-600">
-            <span>◷</span>
-            Histórico
-          </button>
+            return (
+              <Link
+                key={item.href}
+                href={item.href}
+                className={`flex w-full items-center gap-3 rounded-lg px-4 py-3 text-left transition ${
+                  active
+                    ? "bg-blue-50 font-medium text-blue-600"
+                    : "text-slate-500 hover:bg-slate-50 hover:text-blue-600"
+                }`}
+              >
+                <span>{item.icon}</span>
+                {item.label}
+              </Link>
+            );
+          })}
 
         </div>
       </nav>

@@ -52,5 +52,75 @@ export const userService = {
         }
 
         return data;
+    },
+
+    async getAllUsers() {
+        const { data, error } = await supabase
+            .from("users")
+            .select("*")
+            .order("name", { ascending: true });
+
+        if (error) {
+            throw new Error(error.message);
+        }
+
+        return data;
+    },
+
+    async getUserById(id) {
+        const { data, error } = await supabase
+            .from("users")
+            .select("*")
+            .eq("id", id)
+            .single();
+
+        if (error) {
+            throw new Error(error.message);
+        }
+
+        return data;
+    },
+
+    async updateUser(id, userData) {
+        const { name, email, position, telephoneNumber, CPF, dateBirth } = userData;
+
+        // Só envia os campos informados (update parcial)
+        const row = Object.fromEntries(
+            Object.entries({
+                name: name,
+                email: email,
+                position: position,
+                telephone_number: telephoneNumber,
+                cpf: CPF,
+                date_birth: dateBirth
+            }).filter(([, value]) => value !== undefined)
+        );
+
+        const { data, error } = await supabase
+            .from("users")
+            .update(row)
+            .eq("id", id)
+            .select();
+
+        if (error) {
+            throw new Error(error.message);
+        }
+
+        return data[0];
+    },
+
+    // Remove apenas o perfil da tabela "users".
+    // Excluir o usuário do Auth exige a service role key (supabase.auth.admin.deleteUser).
+    async deleteUser(id) {
+        const { error } = await supabase
+            .from("users")
+            .delete()
+            .eq("id", id);
+
+        if (error) {
+            throw new Error(error.message);
+        }
+
+        return { id };
     }
 }

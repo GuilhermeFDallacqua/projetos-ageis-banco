@@ -70,6 +70,18 @@
   font-size: 10px;
   text-align: center;
   white-space: nowrap;
+  border: none;
+  background: none;
+  padding: 0;
+  font-family: inherit;
+}
+
+.step:not(:disabled) {
+  cursor: pointer;
+}
+
+.step:not(:disabled):hover span {
+  color: #1679b4;
 }
 
 .stepCircle {
@@ -104,7 +116,7 @@
   background: #d9e6ef;
 }
 
-.step:nth-of-type(2) + .stepLine {
+.stepLine.stepLineDone {
   background: #55b9b3;
 }
 
@@ -211,6 +223,70 @@
   height: 7px;
   border-radius: 50%;
   background: #208bc0;
+}
+
+.formGrid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 18px 20px;
+  padding: 24px 0 28px;
+}
+
+.formGridSection {
+  border-bottom: 1px solid #e5edf2;
+}
+
+.field {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  min-width: 0;
+}
+
+.fieldFull {
+  grid-column: 1 / -1;
+}
+
+.field label {
+  color: #294564;
+  font-size: 11px;
+  font-weight: 700;
+}
+
+.required {
+  color: #d1544f;
+}
+
+.field input {
+  width: 100%;
+  height: 38px;
+  border: 1px solid #cbdde8;
+  border-radius: 7px;
+  padding: 0 11px;
+  box-sizing: border-box;
+  font-size: 12px;
+  color: #334b66;
+  background: white;
+  outline: none;
+}
+
+.field input:focus {
+  border-color: #3193c4;
+  box-shadow: 0 0 0 2px rgba(49, 147, 196, 0.1);
+}
+
+.field .selectWrapper {
+  flex: none;
+  height: 38px;
+}
+
+.field .selectWrapper select {
+  border-color: #cbdde8;
+  font-size: 12px;
+}
+
+.field .selectWrapper select:focus {
+  border-color: #3193c4;
 }
 
 .questionWithExtra {
@@ -331,11 +407,75 @@
   gap: 8px;
 }
 
+.nextButton:disabled {
+  background: #a9cde0;
+  border-color: #a9cde0;
+  cursor: not-allowed;
+}
+
+.reviewSection {
+  padding: 22px 0;
+  border-bottom: 1px solid #e5edf2;
+}
+
+.reviewSection:last-child {
+  border-bottom: none;
+  padding-bottom: 26px;
+}
+
+.reviewHeader {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 14px;
+}
+
+.reviewHeader h3 {
+  margin: 0;
+  font-size: 14px;
+  color: #223d60;
+  font-weight: 700;
+}
+
+.editButton {
+  border: none;
+  background: none;
+  color: #1680b8;
+  font-size: 11px;
+  font-weight: 700;
+  cursor: pointer;
+}
+
+.editButton:hover {
+  color: #1b618e;
+}
+
+.reviewGrid {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 14px 20px;
+  margin: 0;
+}
+
+.reviewGrid dt {
+  color: #71869c;
+  font-size: 10px;
+  margin-bottom: 4px;
+}
+
+.reviewGrid dd {
+  margin: 0;
+  color: #314b67;
+  font-size: 12px;
+  font-weight: 700;
+  overflow-wrap: anywhere;
+}
+
 .backButton:hover {
   background: #f2f9fc;
 }
 
-.nextButton:hover {
+.nextButton:not(:disabled):hover {
   background: #217ba8;
 }
 
@@ -401,6 +541,11 @@
 
   .questionWithExtra {
     flex-direction: column;
+  }
+
+  .formGrid,
+  .reviewGrid {
+    grid-template-columns: minmax(0, 1fr);
   }
 
   .extraBox {

@@ -109,9 +109,12 @@ export default function Home() {
 
               </div>
 
-              <button className="w-full rounded-lg border border-blue-500 py-3 text-sm font-semibold text-blue-500 transition hover:bg-blue-50">
+              <Link
+                href="/Doadoras"
+                className="block w-full rounded-lg border border-blue-500 py-3 text-center text-sm font-semibold text-blue-500 transition hover:bg-blue-50"
+              >
                 Consultar
-              </button>
+              </Link>
 
             </div>
 

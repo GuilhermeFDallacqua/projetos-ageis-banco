@@ -1,6 +1,7 @@
 .container {
   min-height: 100vh;
   display: flex;
+  flex-direction: column;
   background: #f0f4fa;
   color: #1f3657;
   font-family: Arial, Helvetica, sans-serif;
@@ -8,10 +9,11 @@
 
 .main {
   flex: 1;
-  margin-left: 256px;
+  margin-left: 0;
   padding: 32px 35px 30px;
   min-width: 0;
   box-sizing: border-box;
+  overflow-x: clip;
 }
 
 .header {
@@ -37,6 +39,41 @@
   padding: 5px 9px;
   font-size: 11px;
   font-weight: 700;
+}
+
+.badges {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+}
+
+.badgeMuted,
+.badgeSuccess {
+  display: inline-flex;
+  border-radius: 6px;
+  padding: 5px 9px;
+  font-size: 11px;
+  font-weight: 700;
+}
+
+.badgeMuted {
+  background: #e8eef4;
+  color: #4d6680;
+}
+
+.badgeSuccess {
+  background: #e6f7f5;
+  color: #1a9384;
+}
+
+.loadingBox {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 10px;
+  min-height: 300px;
+  color: #71869c;
+  font-size: 13px;
 }
 
 .helpButton {
@@ -70,6 +107,18 @@
   font-size: 10px;
   text-align: center;
   white-space: nowrap;
+  border: none;
+  background: none;
+  padding: 0;
+  font-family: inherit;
+}
+
+.step:not(:disabled) {
+  cursor: pointer;
+}
+
+.step:not(:disabled):hover span {
+  color: #1679b4;
 }
 
 .stepCircle {
@@ -83,6 +132,15 @@
   align-items: center;
   justify-content: center;
   font-size: 11px;
+  transition:
+    background 0.3s ease,
+    border-color 0.3s ease,
+    color 0.3s ease,
+    transform 0.2s ease;
+}
+
+.step:not(:disabled):hover .stepCircle {
+  transform: scale(1.08);
 }
 
 .stepCircle.completed {
@@ -95,17 +153,19 @@
   border-color: #368fb9;
   background: #358bb4;
   color: white;
+  animation: pulse 2.2s ease-out infinite;
 }
 
 .stepLine {
   width: 42px;
   height: 2px;
   margin-top: 12px;
-  background: #d9e6ef;
+  background: linear-gradient(#55b9b3, #55b9b3) left / 0% 100% no-repeat #d9e6ef;
+  transition: background-size 0.45s ease;
 }
 
-.step:nth-of-type(2) + .stepLine {
-  background: #55b9b3;
+.stepLine.stepLineDone {
+  background-size: 100% 100%;
 }
 
 .card {
@@ -179,6 +239,15 @@
   padding: 0 13px;
   font-size: 12px;
   cursor: pointer;
+  transition:
+    border-color 0.2s ease,
+    background 0.2s ease,
+    color 0.2s ease,
+    transform 0.15s ease;
+}
+
+.radioButton:active {
+  transform: scale(0.97);
 }
 
 .radioButton:hover {
@@ -211,6 +280,96 @@
   height: 7px;
   border-radius: 50%;
   background: #208bc0;
+  animation: popIn 0.2s ease-out;
+}
+
+.formGrid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 18px 20px;
+  padding: 24px 0 28px;
+}
+
+.formGridSection {
+  border-bottom: 1px solid #e5edf2;
+}
+
+.field {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  min-width: 0;
+}
+
+.fieldFull {
+  grid-column: 1 / -1;
+}
+
+.field label {
+  color: #294564;
+  font-size: 11px;
+  font-weight: 700;
+}
+
+.required {
+  color: #d1544f;
+}
+
+.field input {
+  transition:
+    border-color 0.2s ease,
+    box-shadow 0.2s ease;
+  width: 100%;
+  height: 38px;
+  border: 1px solid #cbdde8;
+  border-radius: 7px;
+  padding: 0 11px;
+  box-sizing: border-box;
+  font-size: 12px;
+  color: #334b66;
+  background: white;
+  outline: none;
+}
+
+.field input:focus {
+  border-color: #3193c4;
+  box-shadow: 0 0 0 2px rgba(49, 147, 196, 0.1);
+}
+
+.field .selectWrapper {
+  flex: none;
+  height: 38px;
+}
+
+.field .selectWrapper select {
+  border-color: #cbdde8;
+  font-size: 12px;
+}
+
+.field .selectWrapper select:focus {
+  border-color: #3193c4;
+}
+
+.errorText {
+  display: block;
+  margin-top: 6px;
+  color: #d1544f;
+  font-size: 11px;
+  animation: slideDown 0.25s ease-out;
+}
+
+.fieldInvalid input,
+.fieldInvalid .selectWrapper select {
+  border-color: #e3a19e;
+}
+
+.fieldInvalid input:focus {
+  border-color: #d1544f;
+  box-shadow: 0 0 0 2px rgba(209, 84, 79, 0.1);
+}
+
+.field .errorText {
+  margin-top: -2px;
 }
 
 .questionWithExtra {
@@ -227,6 +386,7 @@
   width: 360px;
   min-width: 0;
   box-sizing: border-box;
+  animation: slideDown 0.3s cubic-bezier(0.22, 1, 0.36, 1);
 }
 
 .extraBox label {
@@ -314,9 +474,28 @@
   font-size: 11px;
   font-weight: 700;
   cursor: pointer;
+  transition:
+    background 0.2s ease,
+    box-shadow 0.2s ease,
+    transform 0.15s ease;
+}
+
+.backButton:not(:disabled):hover,
+.nextButton:not(:disabled):hover {
+  transform: translateY(-1px);
+  box-shadow: 0 4px 12px rgba(39, 136, 184, 0.18);
+}
+
+.backButton:not(:disabled):active,
+.nextButton:not(:disabled):active {
+  transform: scale(0.98);
+  box-shadow: none;
 }
 
 .backButton {
+  display: inline-flex;
+  align-items: center;
+  text-decoration: none;
   background: white;
   border: 1px solid #3293c3;
   color: #1680b8;
@@ -326,17 +505,210 @@
   background: #2788b8;
   border: 1px solid #2788b8;
   color: white;
+  text-decoration: none;
   display: flex;
   align-items: center;
   gap: 8px;
+}
+
+.nextButton:disabled {
+  background: #a9cde0;
+  border-color: #a9cde0;
+  cursor: not-allowed;
+}
+
+.reviewSection {
+  padding: 22px 0;
+  border-bottom: 1px solid #e5edf2;
+}
+
+.reviewSection:last-child {
+  border-bottom: none;
+  padding-bottom: 26px;
+}
+
+.reviewHeader {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 14px;
+}
+
+.reviewHeader h3 {
+  margin: 0;
+  font-size: 14px;
+  color: #223d60;
+  font-weight: 700;
+}
+
+.editButton {
+  border: none;
+  background: none;
+  color: #1680b8;
+  font-size: 11px;
+  font-weight: 700;
+  cursor: pointer;
+}
+
+.editButton:hover {
+  color: #1b618e;
+}
+
+.reviewGrid {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 14px 20px;
+  margin: 0;
+}
+
+.reviewGrid dt {
+  color: #71869c;
+  font-size: 10px;
+  margin-bottom: 4px;
+}
+
+.reviewGrid dd {
+  margin: 0;
+  color: #314b67;
+  font-size: 12px;
+  font-weight: 700;
+  overflow-wrap: anywhere;
 }
 
 .backButton:hover {
   background: #f2f9fc;
 }
 
-.nextButton:hover {
+.nextButton:not(:disabled):hover {
   background: #217ba8;
+}
+
+/* Animações */
+
+.fadeUp {
+  animation: fadeUp 0.45s cubic-bezier(0.22, 1, 0.36, 1) both;
+}
+
+.stepEnterForward {
+  animation: enterForward 0.4s cubic-bezier(0.22, 1, 0.36, 1) both;
+}
+
+.stepEnterBack {
+  animation: enterBack 0.4s cubic-bezier(0.22, 1, 0.36, 1) both;
+}
+
+.successCard {
+  max-width: 520px;
+  margin-top: 40px;
+  padding: 44px 32px 36px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  text-align: center;
+  animation: fadeUp 0.5s cubic-bezier(0.22, 1, 0.36, 1) both;
+}
+
+.successCard h2 {
+  margin: 20px 0 8px;
+  color: #1f3859;
+  font-size: 20px;
+  font-weight: 700;
+}
+
+.successCard p {
+  margin: 0 0 28px;
+  color: #71869c;
+  font-size: 12px;
+}
+
+.successIcon {
+  width: 72px;
+  height: 72px;
+  border-radius: 50%;
+  background: #e6f7f5;
+  color: #20aa9a;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  animation: popIn 0.5s cubic-bezier(0.34, 1.56, 0.64, 1) 0.15s both;
+}
+
+@keyframes fadeUp {
+  from {
+    opacity: 0;
+    transform: translateY(12px);
+  }
+
+  to {
+    opacity: 1;
+    transform: none;
+  }
+}
+
+@keyframes enterForward {
+  from {
+    opacity: 0;
+    transform: translateX(24px);
+  }
+
+  to {
+    opacity: 1;
+    transform: none;
+  }
+}
+
+@keyframes enterBack {
+  from {
+    opacity: 0;
+    transform: translateX(-24px);
+  }
+
+  to {
+    opacity: 1;
+    transform: none;
+  }
+}
+
+@keyframes slideDown {
+  from {
+    opacity: 0;
+    transform: translateY(-6px);
+  }
+
+  to {
+    opacity: 1;
+    transform: none;
+  }
+}
+
+@keyframes popIn {
+  from {
+    opacity: 0;
+    transform: scale(0.4);
+  }
+
+  to {
+    opacity: 1;
+    transform: scale(1);
+  }
+}
+
+@keyframes pulse {
+  0% {
+    box-shadow: 0 0 0 0 rgba(53, 139, 180, 0.35);
+  }
+
+  70%,
+  100% {
+    box-shadow: 0 0 0 8px rgba(53, 139, 180, 0);
+  }
+}
+
+/* Espaço do menu lateral fixo (mesmo breakpoint "lg" do Tailwind) */
+@media (min-width: 1024px) {
+  .main {
+    margin-left: 256px;
+  }
 }
 
 @media (max-width: 1100px) {
@@ -380,7 +752,6 @@
 
 @media (max-width: 680px) {
   .main {
-    margin-left: 256px;
     padding: 22px 14px;
   }
 
@@ -394,13 +765,26 @@
   }
 
   .steps {
-    overflow-x: auto;
-    justify-content: flex-start;
+    justify-content: center;
     padding-bottom: 8px;
+  }
+
+  /* No celular só os números das etapas; o título aparece no card */
+  .step {
+    width: auto;
+  }
+
+  .step span {
+    display: none;
   }
 
   .questionWithExtra {
     flex-direction: column;
+  }
+
+  .formGrid,
+  .reviewGrid {
+    grid-template-columns: minmax(0, 1fr);
   }
 
   .extraBox {
@@ -421,7 +805,6 @@
 
 @media (max-width: 450px) {
   .main {
-    margin-left: 256px;
     padding: 18px 12px;
   }
 

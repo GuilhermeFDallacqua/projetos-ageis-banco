@@ -7,7 +7,8 @@ dotenv.config();
 const app = Fastify();
 const PORT = process.env.PORT;
 
-app.register(userRoutes, trialRoutes);
+app.register(userRoutes);
+app.register(trialRoutes);
 
 const start = async() => {
     try {

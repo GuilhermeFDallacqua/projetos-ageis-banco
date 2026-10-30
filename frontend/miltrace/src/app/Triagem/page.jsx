@@ -1,367 +1,383 @@
-
 "use client";
 
-import { useState } from "react";
+import { Fragment, Suspense, useCallback, useEffect, useState } from "react";
+import Link from "next/link";
+import { useSearchParams } from "next/navigation";
 import {
   Check,
   ChevronRight,
-  ChevronDown,
 } from "lucide-react";
 
 import Sidebar from "@/components/Sidebar/sidebar";
+import { Spinner, ErrorState } from "@/components/States/states";
+import { useAsync } from "@/hooks/useAsync";
+import { useToast } from "@/contexts/ToastContext";
+import { trialService } from "@/services/trialService";
+import { formatTrialCode } from "@/utils/format";
 import styles from "./triagem.module.css";
+import {
+  initialForm,
+  buildTrialPayload,
+  validateStep,
+  donorToForm,
+  trialToForm,
+} from "./form";
+import Identificacao from "./steps/Identificacao";
+import SaudeHabitos from "./steps/SaudeHabitos";
+import GestacaoBebe from "./steps/GestacaoBebe";
+import Coleta from "./steps/Coleta";
+import Sorologia from "./steps/Sorologia";
+import Revisao from "./steps/Revisao";
+
+const steps = [
+  { label: "Identificação", component: Identificacao },
+  { label: "Saúde e hábitos", component: SaudeHabitos },
+  { label: "Gestação e bebê", component: GestacaoBebe },
+  { label: "Coleta e armaz.", component: Coleta },
+  { label: "Sorologia", component: Sorologia },
+  { label: "Revisão", component: Revisao },
+];
 
 export default function TriagemPage() {
-  const [transfusao, setTransfusao] = useState("nao");
-  const [tatuagem, setTatuagem] = useState("nao");
-  const [mesTatuagem, setMesTatuagem] = useState("");
-  const [anoTatuagem, setAnoTatuagem] = useState("");
-  const [fumante, setFumante] = useState("nao");
-  const [alcool, setAlcool] = useState("nao");
-  const [medicamento, setMedicamento] = useState("nao");
-  const [nomeMedicamento, setNomeMedicamento] = useState("");
-
   return (
     <div className={styles.container}>
 
       <Sidebar />
 
       <main className={styles.main}>
-
-        <header className={styles.header}>
-          <div>
-            <h1>Nova Triagem</h1>
-
-            <span className={styles.doadora}>
-              Maria Freitas Queiroz
-            </span>
-          </div>
-        </header>
-
-        <div className={styles.steps}>
-
-          <div className={styles.step}>
-            <div
-              className={`${styles.stepCircle} ${styles.completed}`}
-            >
-              <Check size={15} />
-            </div>
-
-            <span>1. Identificação</span>
-          </div>
-
-          <div className={styles.stepLine}></div>
-
-          <div className={styles.step}>
-            <div
-              className={`${styles.stepCircle} ${styles.current}`}
-            >
-              2
-            </div>
-
-            <span>2. Saúde e hábitos</span>
-          </div>
-
-          <div className={styles.stepLine}></div>
-
-          <div className={styles.step}>
-            <div className={styles.stepCircle}>
-              3
-            </div>
-
-            <span>3. Gestação e bebê</span>
-          </div>
-
-          <div className={styles.stepLine}></div>
-
-          <div className={styles.step}>
-            <div className={styles.stepCircle}>
-              4
-            </div>
-
-            <span>4. Coleta e armaz.</span>
-          </div>
-
-          <div className={styles.stepLine}></div>
-
-          <div className={styles.step}>
-            <div className={styles.stepCircle}>
-              5
-            </div>
-
-            <span>5. Sorologia</span>
-          </div>
-
-          <div className={styles.stepLine}></div>
-
-          <div className={styles.step}>
-            <div className={styles.stepCircle}>
-              6
-            </div>
-
-            <span>6. Revisão</span>
-          </div>
-
-        </div>
-
-        <section className={styles.card}>
-
-          <div className={styles.cardHeader}>
-            <h2>Saúde e Hábitos</h2>
-
-            <p>
-              Responda com atenção a cada uma das perguntas abaixo
-              para prosseguir com a triagem.
-            </p>
-          </div>
-
-          <div className={styles.divider}></div>
-
-          <Question
-            number="1."
-            text="Realizou transfusão de sangue recentemente?"
-          >
-            <div className={styles.options}>
-
-              <RadioButton
-                label="Não"
-                selected={transfusao === "nao"}
-                onClick={() => setTransfusao("nao")}
-              />
-
-              <RadioButton
-                label="Sim"
-                selected={transfusao === "sim"}
-                onClick={() => setTransfusao("sim")}
-              />
-
-            </div>
-          </Question>
-
-          <Question
-            number="2."
-            text="Possui tatuagem?"
-          >
-            <div className={styles.questionWithExtra}>
-
-              <div className={styles.options}>
-
-                <RadioButton
-                  label="Não"
-                  selected={tatuagem === "nao"}
-                  onClick={() => setTatuagem("nao")}
-                />
-
-                <RadioButton
-                  label="Sim"
-                  selected={tatuagem === "sim"}
-                  onClick={() => setTatuagem("sim")}
-                />
-
-              </div>
-
-              {tatuagem === "sim" && (
-                <div className={styles.extraBox}>
-
-                  <label>
-                    Quando realizou a tatuagem?
-                  </label>
-
-                  <div className={styles.selectRow}>
-
-                    <div className={styles.selectWrapper}>
-                      <select
-                        value={mesTatuagem}
-                        onChange={(e) =>
-                          setMesTatuagem(e.target.value)
-                        }
-                      >
-                        <option value="">Mês</option>
-                        <option value="01">Janeiro</option>
-                        <option value="02">Fevereiro</option>
-                        <option value="03">Março</option>
-                        <option value="04">Abril</option>
-                        <option value="05">Maio</option>
-                        <option value="06">Junho</option>
-                        <option value="07">Julho</option>
-                        <option value="08">Agosto</option>
-                        <option value="09">Setembro</option>
-                        <option value="10">Outubro</option>
-                        <option value="11">Novembro</option>
-                        <option value="12">Dezembro</option>
-                      </select>
-
-                      <ChevronDown size={14} />
-                    </div>
-
-                    <div className={styles.selectWrapper}>
-                      <select
-                        value={anoTatuagem}
-                        onChange={(e) =>
-                          setAnoTatuagem(e.target.value)
-                        }
-                      >
-                        <option value="">Ano</option>
-                        <option value="2026">2026</option>
-                        <option value="2025">2025</option>
-                        <option value="2024">2024</option>
-                        <option value="2023">2023</option>
-                        <option value="2022">2022</option>
-                        <option value="2021">2021</option>
-                        <option value="2020">2020</option>
-                        <option value="2019">2019</option>
-                      </select>
-
-                      <ChevronDown size={14} />
-                    </div>
-
-                  </div>
-                </div>
-              )}
-
-            </div>
-          </Question>
-
-          <Question
-            number="3."
-            text="Fuma atualmente?"
-          >
-            <div className={styles.options}>
-
-              <RadioButton
-                label="Não"
-                selected={fumante === "nao"}
-                onClick={() => setFumante("nao")}
-              />
-
-              <RadioButton
-                label="Sim"
-                selected={fumante === "sim"}
-                onClick={() => setFumante("sim")}
-              />
-
-            </div>
-          </Question>
-
-          <Question
-            number="4."
-            text="Consome bebida alcoólica?"
-          >
-            <div className={styles.options}>
-
-              <RadioButton
-                label="Não"
-                selected={alcool === "nao"}
-                onClick={() => setAlcool("nao")}
-              />
-
-              <RadioButton
-                label="Sim"
-                selected={alcool === "sim"}
-                onClick={() => setAlcool("sim")}
-              />
-
-            </div>
-          </Question>
-
-          <Question
-            number="5."
-            text="Utiliza algum medicamento?"
-          >
-            <div className={styles.questionWithExtra}>
-
-              <div className={styles.options}>
-
-                <RadioButton
-                  label="Não"
-                  selected={medicamento === "nao"}
-                  onClick={() => setMedicamento("nao")}
-                />
-
-                <RadioButton
-                  label="Sim"
-                  selected={medicamento === "sim"}
-                  onClick={() => setMedicamento("sim")}
-                />
-
-              </div>
-
-              {medicamento === "sim" && (
-                <div className={styles.extraBox}>
-
-                  <label>
-                    Qual medicamento?
-                  </label>
-
-                  <input
-                    type="text"
-                    value={nomeMedicamento}
-                    onChange={(e) =>
-                      setNomeMedicamento(e.target.value)
-                    }
-                    placeholder="Digite o medicamento"
-                  />
-
-                </div>
-              )}
-
-            </div>
-          </Question>
-
-        </section>
-
-        <div className={styles.footer}>
-
-          <div className={styles.footerButtons}>
-
-            <button className={styles.backButton}>
-              Voltar
-            </button>
-
-            <button className={styles.nextButton}>
-              Próxima etapa
-              <ChevronRight size={16} />
-            </button>
-
-          </div>
-
-        </div>
-
+        <Suspense>
+          <TriagemLoader />
+        </Suspense>
       </main>
     </div>
   );
 }
 
-function Question({ number, text, children }) {
-  return (
-    <div className={styles.question}>
-      <h3>
-        <span>{number}</span> {text}
-      </h3>
+// ?editar=ID  -> edita a triagem
+// ?doadora=ID -> nova triagem com os dados da doadora já preenchidos
+function TriagemLoader() {
+  const searchParams = useSearchParams();
+  const editId = searchParams.get("editar");
+  const donorId = searchParams.get("doadora");
+  const sourceId = editId || donorId;
 
-      {children}
-    </div>
+  const loadSource = useCallback(
+    () => (sourceId ? trialService.getById(sourceId) : Promise.resolve(null)),
+    [sourceId]
+  );
+  const { data, loading, error, reload } = useAsync(loadSource);
+
+  if (error) {
+    return (
+      <section className={styles.card}>
+        <ErrorState message={error} onRetry={reload} />
+      </section>
+    );
+  }
+
+  if (loading) {
+    return (
+      <div className={styles.loadingBox}>
+        <Spinner />
+        Carregando triagem...
+      </div>
+    );
+  }
+
+  const initial = data
+    ? editId
+      ? trialToForm(data)
+      : donorToForm(data)
+    : initialForm;
+
+  return (
+    <TriagemWizard
+      key={sourceId || "nova"}
+      initial={initial}
+      editId={editId}
+      isReturningDonor={!!donorId && !!data}
+    />
   );
 }
 
-function RadioButton({
-  label,
-  selected,
-  onClick,
-}) {
-  return (
-    <button
-      type="button"
-      onClick={onClick}
-      className={`${styles.radioButton} ${
-        selected ? styles.radioSelected : ""
-      }`}
-    >
-      <span className={styles.radioCircle}>
-        {selected && <span />}
-      </span>
+function TriagemWizard({ initial, editId, isReturningDonor }) {
+  const toast = useToast();
 
-      {label}
-    </button>
+  const [currentStep, setCurrentStep] = useState(0);
+  const [form, setForm] = useState(initial);
+  const [errors, setErrors] = useState({});
+  const [direction, setDirection] = useState("forward");
+  const [saving, setSaving] = useState(false);
+  const [saved, setSaved] = useState(null);
+  const [dirty, setDirty] = useState(false);
+
+  const isEditing = !!editId;
+  const isFirstStep = currentStep === 0;
+  const isLastStep = currentStep === steps.length - 1;
+
+  const StepComponent = steps[currentStep].component;
+
+  // Avisa antes de sair da página com dados não salvos
+  useEffect(() => {
+    if (!dirty || saved) return;
+
+    const onBeforeUnload = (e) => e.preventDefault();
+    window.addEventListener("beforeunload", onBeforeUnload);
+
+    return () => window.removeEventListener("beforeunload", onBeforeUnload);
+  }, [dirty, saved]);
+
+  function update(field, value) {
+    setForm((prev) => ({ ...prev, [field]: value }));
+    setDirty(true);
+
+    // Some com o erro do campo assim que ele é alterado
+    if (errors[field]) {
+      setErrors((prev) => ({ ...prev, [field]: undefined }));
+    }
+  }
+
+  function goToStep(index) {
+    setDirection(index >= currentStep ? "forward" : "back");
+    setCurrentStep(index);
+    setErrors({});
+    window.scrollTo({ top: 0, behavior: "smooth" });
+  }
+
+  function handleNext() {
+    const found = validateStep(currentStep, form);
+
+    if (Object.keys(found).length) {
+      setErrors(found);
+      toast.error("Revise os campos destacados antes de continuar.");
+      return;
+    }
+
+    goToStep(currentStep + 1);
+  }
+
+  async function handleFinish() {
+    // Garante que todas as etapas estão válidas antes de salvar
+    for (let step = 0; step < steps.length - 1; step++) {
+      const found = validateStep(step, form);
+
+      if (Object.keys(found).length) {
+        goToStep(step);
+        setErrors(found);
+        toast.error("Existem campos pendentes nesta etapa.");
+        return;
+      }
+    }
+
+    setSaving(true);
+
+    try {
+      const payload = buildTrialPayload(form);
+      const result = isEditing
+        ? await trialService.update(editId, payload)
+        : await trialService.create(payload);
+
+      setSaved(result || { id: editId });
+      window.scrollTo({ top: 0, behavior: "smooth" });
+    } catch (err) {
+      toast.error(err.message);
+    } finally {
+      setSaving(false);
+    }
+  }
+
+  function handleRestart() {
+    setForm(initialForm);
+    setErrors({});
+    setSaved(null);
+    setDirty(false);
+    setDirection("forward");
+    setCurrentStep(0);
+  }
+
+  if (saved) {
+    return (
+      <section className={`${styles.card} ${styles.successCard}`}>
+
+        <div className={styles.successIcon}>
+          <Check size={34} />
+        </div>
+
+        <h2>{isEditing ? "Triagem atualizada!" : "Triagem finalizada!"}</h2>
+
+        <p>
+          A triagem
+          {saved.id !== undefined && <strong> {formatTrialCode(saved.id)}</strong>} de{" "}
+          <strong>{form.fullName}</strong> foi{" "}
+          {isEditing ? "atualizada" : "registrada"} com sucesso.
+        </p>
+
+        <div className={styles.footerButtons}>
+
+          {saved.id !== undefined && (
+            <Link href={`/Doadoras/${saved.id}`} className={styles.backButton}>
+              Ver triagem
+            </Link>
+          )}
+
+          {isEditing ? (
+            <Link href="/Doadoras" className={styles.nextButton}>
+              Ver doadoras
+              <ChevronRight size={16} />
+            </Link>
+          ) : (
+            <button
+              className={styles.nextButton}
+              onClick={handleRestart}
+            >
+              Nova triagem
+              <ChevronRight size={16} />
+            </button>
+          )}
+
+        </div>
+
+      </section>
+    );
+  }
+
+  return (
+    <>
+      <header className={`${styles.header} ${styles.fadeUp}`}>
+        <div>
+          <h1>{isEditing ? "Editar Triagem" : "Nova Triagem"}</h1>
+
+          <div className={styles.badges}>
+            <span className={styles.doadora}>
+              {form.fullName || "Nova doadora"}
+            </span>
+
+            {isEditing && (
+              <span className={styles.badgeMuted}>
+                {formatTrialCode(editId)}
+              </span>
+            )}
+
+            {isReturningDonor && (
+              <span className={styles.badgeSuccess}>
+                Doadora já cadastrada
+              </span>
+            )}
+          </div>
+        </div>
+      </header>
+
+      <div className={styles.steps}>
+
+        {steps.map((step, index) => {
+          const completed = index < currentStep;
+          const current = index === currentStep;
+
+          return (
+            <Fragment key={step.label}>
+
+              {index > 0 && (
+                <div
+                  className={`${styles.stepLine} ${
+                    index <= currentStep ? styles.stepLineDone : ""
+                  }`}
+                ></div>
+              )}
+
+              <button
+                type="button"
+                className={styles.step}
+                disabled={!completed}
+                onClick={() => goToStep(index)}
+                aria-current={current ? "step" : undefined}
+              >
+                <div
+                  className={`${styles.stepCircle} ${
+                    completed ? styles.completed : ""
+                  } ${current ? styles.current : ""}`}
+                >
+                  {completed ? <Check size={15} /> : index + 1}
+                </div>
+
+                <span>{index + 1}. {step.label}</span>
+              </button>
+
+            </Fragment>
+          );
+        })}
+
+      </div>
+
+      <div
+        key={currentStep}
+        className={
+          direction === "forward"
+            ? styles.stepEnterForward
+            : styles.stepEnterBack
+        }
+      >
+        <StepComponent
+          form={form}
+          update={update}
+          errors={errors}
+          goToStep={goToStep}
+        />
+      </div>
+
+      <div className={styles.footer}>
+
+        <span className={styles.requiredText}>
+          {isFirstStep
+            ? "* Campos obrigatórios"
+            : `Etapa ${currentStep + 1} de ${steps.length}`}
+        </span>
+
+        <div className={styles.footerButtons}>
+
+          {isFirstStep ? (
+            <Link
+              href={isEditing ? `/Doadoras/${editId}` : "/"}
+              className={styles.backButton}
+            >
+              Cancelar
+            </Link>
+          ) : (
+            <button
+              className={styles.backButton}
+              onClick={() => goToStep(currentStep - 1)}
+              disabled={saving}
+            >
+              Voltar
+            </button>
+          )}
+
+          {isLastStep ? (
+            <button
+              className={styles.nextButton}
+              onClick={handleFinish}
+              disabled={saving}
+            >
+              {saving && <Spinner />}
+              {saving
+                ? "Salvando..."
+                : isEditing
+                  ? "Salvar alterações"
+                  : "Finalizar triagem"}
+              {!saving && <Check size={16} />}
+            </button>
+          ) : (
+            <button
+              className={styles.nextButton}
+              onClick={handleNext}
+            >
+              Próxima etapa
+              <ChevronRight size={16} />
+            </button>
+          )}
+
+        </div>
+
+      </div>
+    </>
   );
 }

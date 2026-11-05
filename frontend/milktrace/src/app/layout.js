@@ -1,5 +1,7 @@
 import { Geist, Geist_Mono } from "next/font/google";
 import "./globals.css";
+import { AuthProvider } from "@/contexts/AuthContext";
+import { ToastProvider } from "@/contexts/ToastContext";
 
 const geistSans = Geist({
   variable: "--font-geist-sans",
@@ -13,16 +15,19 @@ const geistMono = Geist_Mono({
 
 export const metadata = {
   title: "MilkTrace",
-  description: "MilkTrace - Sistema de triagem do leite",
+  description: "Sistema de gerenciamento do Banco de Leite",
 };
 
 export default function RootLayout({ children }) {
   return (
-    <html
-      lang="en"
-      className={`${geistSans.variable} ${geistMono.variable} h-full antialiased`}
-    >
-      <body className="min-h-full flex flex-col">{children}</body>
+    <html lang="pt-BR">
+      <body className={`${geistSans.variable} ${geistMono.variable}`}>
+        <ToastProvider>
+          <AuthProvider>
+            {children}
+          </AuthProvider>
+        </ToastProvider>
+      </body>
     </html>
   );
 }

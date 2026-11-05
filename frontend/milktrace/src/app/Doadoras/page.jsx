@@ -4,27 +4,14 @@ import { Suspense, useCallback, useState } from "react";
 import Link from "next/link";
 import { useSearchParams } from "next/navigation";
 import { Search, ClipboardPlus } from "lucide-react";
-
 import PageLayout, { PageHeader } from "@/components/PageLayout/pageLayout";
 import ConfirmDialog from "@/components/ConfirmDialog/confirmDialog";
-import {
-  SkeletonRows,
-  EmptyState,
-  ErrorState,
-} from "@/components/States/states";
+import {SkeletonRows,EmptyState,ErrorState,} from "@/components/States/states";
 import StatusBadge from "@/components/StatusBadge/statusBadge";
 import { useAsync } from "@/hooks/useAsync";
 import { useToast } from "@/contexts/ToastContext";
 import { trialService } from "@/services/trialService";
-import {
-  groupDonors,
-  onlyDigits,
-  formatCPF,
-  formatPhone,
-  formatDate,
-  formatZone,
-  getInitials,
-} from "@/utils/format";
+import {groupDonors,onlyDigits,formatCPF,formatPhone,formatDate,formatZone,getInitials,} from "@/utils/format";
 
 export default function DoadorasPage() {
   return (
@@ -267,7 +254,7 @@ function Doadoras() {
           (toDelete.trials.length === 1
             ? `A triagem de ${toDelete.latest.full_name} será excluída. `
             : `As ${toDelete.trials.length} triagens de ${toDelete.latest.full_name} serão excluídas. `) +
-            "Essa ação não pode ser desfeita."
+          "Essa ação não pode ser desfeita."
         }
         loading={deleting}
         onConfirm={handleDelete}
